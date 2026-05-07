@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #0D0D0D;
+    --paper: #F7F4EE;
+    --cream: #EDE9E0;
+    --gold: #B8913A;
+    --gold-light: #D4A853;
+    --gold-pale: #F5EDD6;
+    --slate: #3A3F4A;
+    --muted: #8A8F9A;
+    --border: #D8D3C8;
+    --white: #FFFFFF;
+    --danger: #C0392B;
+    --success: #27634A;
+    --warn: #B5710A;
+    --sidebar-w: 240px;
+  }

@@ -1,0 +1,36 @@
+import { useState } from "react";
+import { Modal } from "@/components/ui";
+
+export default function AddTaskModal({ onClose, onSave, cases }) {
+  const [form, setForm] = useState({ title: "", assignee: "", priority: "normal", deadline: "", caseId: "" });
+  const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
+  const save = () => { if (!form.title) return; onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null }); onClose(); };
+
+  return (
+    <Modal title="Create Task" onClose={onClose} onSave={save} saveLabel="Create Task">
+      <div className="form-group"><label className="form-label">Task Title *</label><input className="form-control" value={form.title} onChange={set("title")} placeholder="Task description" /></div>
+      <div className="form-row">
+        <div className="form-group"><label className="form-label">Assignee</label>
+          <select className="form-control" value={form.assignee} onChange={set("assignee")}>
+            <option value="">— Assign to —</option>
+            {["Lead Attorney", "Associate", "Secretary", "Paralegal"].map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </div>
+        <div className="form-group"><label className="form-label">Priority</label>
+          <select className="form-control" value={form.priority} onChange={set("priority")}>
+            {["urgent", "high", "normal", "low"].map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="form-group"><label className="form-label">Deadline</label><input type="date" className="form-control" value={form.deadline} onChange={set("deadline")} /></div>
+        <div className="form-group"><label className="form-label">Linked Case</label>
+          <select className="form-control" value={form.caseId} onChange={set("caseId")}>
+            <option value="">— Optional —</option>
+            {cases.map(c => <option key={c.id} value={c.id}>{c.caseNumber}</option>)}
+          </select>
+        </div>
+      </div>
+    </Modal>
+  );
+}
