@@ -4,7 +4,7 @@ import { Modal } from "@/components/ui";
 export default function AddExpenseModal({ onClose, clients, cases, onSave }) {
   const [form, setForm] = useState({ description: "", amount: "", type: "invoice", clientId: "", caseId: "", date: new Date().toISOString().slice(0, 10), status: "outstanding" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = () => { if (!form.description || !form.amount) return; onSave({ ...form, amount: parseFloat(form.amount), clientId: parseInt(form.clientId), caseId: parseInt(form.caseId) }); onClose(); };
+  const save = async () => { if (!form.description || !form.amount) return; const saved = await onSave({ ...form, amount: parseFloat(form.amount), clientId: parseInt(form.clientId), caseId: form.caseId ? parseInt(form.caseId) : null }); if (saved !== false) onClose(); };
 
   return (
     <Modal title="Record Transaction" onClose={onClose} onSave={save} saveLabel="Record">

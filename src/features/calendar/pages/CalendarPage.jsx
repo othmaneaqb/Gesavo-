@@ -3,7 +3,7 @@ import { fmtDate } from "@/shared/utils";
 
 export default function CalendarPage({ hearings, cases }) {
   const today = new Date();
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 1)); // July 2025
+  const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
   const monthName = currentDate.toLocaleString("en", { month: "long", year: "numeric" });
@@ -57,6 +57,7 @@ export default function CalendarPage({ hearings, cases }) {
             </div>
           );
         })}
+        {upcomingList.length === 0 && <div className="empty-state"><h3>No scheduled hearings</h3></div>}
         {hearings.filter(h => h.status === "completed").length > 0 && (
           <div style={{ marginTop: 16 }}>
             <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 8 }}>Past Hearings</div>

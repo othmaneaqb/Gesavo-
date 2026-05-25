@@ -4,7 +4,7 @@ import { Modal } from "@/components/ui";
 export default function AddHearingModal({ onClose, onSave, cases }) {
   const [form, setForm] = useState({ title: "", date: "", time: "", court: "", caseId: "" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = () => { if (!form.title || !form.date) return; onSave({ ...form, caseId: parseInt(form.caseId) }); onClose(); };
+  const save = async () => { if (!form.title || !form.date) return; const saved = await onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null }); if (saved !== false) onClose(); };
 
   return (
     <Modal title="Schedule Hearing" onClose={onClose} onSave={save} saveLabel="Schedule">

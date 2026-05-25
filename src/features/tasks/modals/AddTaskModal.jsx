@@ -4,7 +4,7 @@ import { Modal } from "@/components/ui";
 export default function AddTaskModal({ onClose, onSave, cases }) {
   const [form, setForm] = useState({ title: "", assignee: "", priority: "normal", deadline: "", caseId: "" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = () => { if (!form.title) return; onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null }); onClose(); };
+  const save = async () => { if (!form.title) return; const saved = await onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null }); if (saved !== false) onClose(); };
 
   return (
     <Modal title="Create Task" onClose={onClose} onSave={save} saveLabel="Create Task">

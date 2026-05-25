@@ -1,7 +1,7 @@
 import { StatCard, StatusBadge } from "@/components/ui";
 import { fmtCurrency, fmtDate, priorityColor } from "@/shared/utils";
 
-export default function Dashboard({ clients, cases, tasks, hearings, expenses, activities }) {
+export default function Dashboard({ clients, cases, tasks, hearings, expenses, activities, canViewFinance }) {
   const totalOwed = clients.reduce((s, c) => s + (c.totalFees - c.paidFees), 0);
   const activeCases = cases.filter(c => c.status === "active" || c.status === "urgent").length;
   const pendingTasks = tasks.filter(t => t.status !== "done").length;
@@ -10,10 +10,10 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
   return (
     <div>
       <div className="stats-grid">
-        <StatCard label="Active Clients" value={clients.filter(c => c.status === "active").length} sub="2 added this month" />
+        <StatCard label="Active Clients" value={clients.filter(c => c.status === "active").length} sub="Current active clients" />
         <StatCard label="Open Cases" value={activeCases} sub={`${cases.filter(c => c.status === "urgent").length} urgent`} />
         <StatCard label="Pending Tasks" value={pendingTasks} sub="across all cases" />
-        <StatCard label="Outstanding Fees" value={fmtCurrency(totalOwed)} sub="Total receivable" isAmount />
+        {canViewFinance && <StatCard label="Outstanding Fees" value={fmtCurrency(totalOwed)} sub="Total receivable" isAmount />}
       </div>
 
       <div className="grid-2" style={{ marginBottom: 20 }}>
@@ -37,6 +37,7 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
                 <StatusBadge status="upcoming" />
               </div>
             ))}
+            {upcomingHearings === 0 && <div className="empty-state"><h3>No upcoming hearings</h3></div>}
           </div>
         </div>
 
@@ -56,12 +57,13 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
               </li>
             ))}
           </ul>
+          {activities.length === 0 && <div className="empty-state"><h3>No recent activity</h3></div>}
         </div>
       </div>
 
-      <div className="grid-2">
+      <div className={canViewFinance ? "grid-2" : ""}>
         {/* Outstanding Balances */}
-        <div className="card">
+        {canViewFinance && <div className="card">
           <div className="card-header">
             <h3 className="card-title">Outstanding Balances</h3>
           </div>
@@ -78,7 +80,8 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
               </div>
             );
           })}
-        </div>
+          {clients.every(c => c.totalFees <= c.paidFees) && <div className="empty-state"><h3>No outstanding balances</h3></div>}
+        </div>}
 
         {/* Open Tasks Summary */}
         <div className="card">
@@ -92,6 +95,7 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
               <span style={{ fontSize: 11, color: "var(--muted)" }}>{fmtDate(t.deadline)}</span>
             </div>
           ))}
+          {tasks.every(t => t.status === "done") && <div className="empty-state"><h3>No open tasks</h3></div>}
         </div>
       </div>
     </div>

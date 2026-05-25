@@ -4,7 +4,7 @@ import { DocRow } from "@/features/documents";
 import { I } from "@/shared/constants";
 import { fmtCurrency, fmtDate } from "@/shared/utils";
 
-export default function ClientDetail({ client, cases, docs, activities, expenses, onBack }) {
+export default function ClientDetail({ client, cases, docs, activities, expenses, canViewFinance, onBack, onEdit, onDelete }) {
   const [tab, setTab] = useState("overview");
   const clientCases = cases.filter(c => c.clientId === client.id);
   const clientDocs = docs.filter(d => d.clientId === client.id);
@@ -13,7 +13,13 @@ export default function ClientDetail({ client, cases, docs, activities, expenses
 
   return (
     <div>
-      <button className="btn btn-ghost btn-sm mb-4" onClick={onBack}>{I.back} Back to Clients</button>
+      <div className="flex justify-between items-center mb-4">
+        <button className="btn btn-ghost btn-sm" onClick={onBack}>{I.back} Back to Clients</button>
+        <div className="flex gap-2">
+          <button className="btn btn-ghost btn-sm" onClick={onEdit}>Edit Client</button>
+          <button className="btn btn-danger btn-sm" onClick={() => onDelete(client.id)}>Delete Client</button>
+        </div>
+      </div>
       <div className="detail-panel">
         <div className="detail-header">
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -27,7 +33,7 @@ export default function ClientDetail({ client, cases, docs, activities, expenses
         </div>
         <div className="detail-body">
           <div className="tabs" style={{ padding: "0 24px" }}>
-            {["overview", "cases", "documents", "activity", "finance"].map(t => (
+            {["overview", "cases", "documents", "activity", ...(canViewFinance ? ["finance"] : [])].map(t => (
               <div key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t.charAt(0).toUpperCase() + t.slice(1)}</div>
             ))}
           </div>
@@ -37,8 +43,8 @@ export default function ClientDetail({ client, cases, docs, activities, expenses
                 <div className="info-grid mb-4">
                   <div className="info-item"><label>Address</label><span>{client.address}</span></div>
                   <div className="info-item"><label>Last Activity</label><span>{fmtDate(client.lastActivity)}</span></div>
-                  <div className="info-item"><label>Total Fees</label><span>{fmtCurrency(client.totalFees)}</span></div>
-                  <div className="info-item"><label>Balance Due</label><span style={{ color: client.totalFees > client.paidFees ? "var(--danger)" : "var(--success)" }}>{client.totalFees > client.paidFees ? fmtCurrency(client.totalFees - client.paidFees) : "Fully Paid ✓"}</span></div>
+                  {canViewFinance && <div className="info-item"><label>Total Fees</label><span>{fmtCurrency(client.totalFees)}</span></div>}
+                  {canViewFinance && <div className="info-item"><label>Balance Due</label><span style={{ color: client.totalFees > client.paidFees ? "var(--danger)" : "var(--success)" }}>{client.totalFees > client.paidFees ? fmtCurrency(client.totalFees - client.paidFees) : "Fully Paid ✓"}</span></div>}
                 </div>
                 {client.notes && <div style={{ background: "var(--gold-pale)", border: "1px solid var(--border)", borderRadius: 8, padding: "12px 14px", fontSize: 13, color: "var(--slate)" }}><strong>Note:</strong> {client.notes}</div>}
               </div>

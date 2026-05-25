@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui";
 
-export default function AddClientModal({ onClose, onSave }) {
-  const [form, setForm] = useState({ name: "", nationalId: "", phone: "", email: "", address: "", notes: "" });
+export default function AddClientModal({ onClose, onSave, initialValues, title = "Add New Client", saveLabel = "Add Client" }) {
+  const [form, setForm] = useState(initialValues || { name: "", nationalId: "", phone: "", email: "", address: "", notes: "" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = () => { if (!form.name) return; onSave(form); onClose(); };
+  const save = async () => {
+    if (!form.name) return;
+    const saved = await onSave(form);
+    if (saved !== false) onClose();
+  };
 
   return (
-    <Modal title="Add New Client" onClose={onClose} onSave={save} saveLabel="Add Client">
+    <Modal title={title} onClose={onClose} onSave={save} saveLabel={saveLabel}>
       <div className="form-row">
         <div className="form-group"><label className="form-label">Full Name *</label><input className="form-control" value={form.name} onChange={set("name")} placeholder="Client full name" /></div>
         <div className="form-group"><label className="form-label">National ID</label><input className="form-control" value={form.nationalId} onChange={set("nationalId")} placeholder="ID number" /></div>

@@ -63,6 +63,8 @@ This project prioritizes architecture improvements WITHOUT changing visual ident
 
 ## 2. Use Feature-Based Architecture
 
+
+
 Frontend architecture must follow feature/domain separation.
 
 Each feature must be autonomous.

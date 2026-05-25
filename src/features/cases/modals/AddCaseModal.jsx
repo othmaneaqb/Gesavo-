@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui";
 
-export default function AddCaseModal({ onClose, onSave, clients }) {
-  const [form, setForm] = useState({ caseNumber: "", title: "", clientId: "", type: "civil", court: "", judge: "", status: "active", nextHearing: "" });
+export default function AddCaseModal({ onClose, onSave, clients, initialValues, title = "Open New Case", saveLabel = "Open Case" }) {
+  const [form, setForm] = useState(initialValues || { caseNumber: "", title: "", clientId: "", type: "civil", court: "", judge: "", status: "active", nextHearing: "" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = () => { if (!form.title || !form.clientId) return; onSave({ ...form, clientId: parseInt(form.clientId) }); onClose(); };
+  const save = async () => { if (!form.title || !form.clientId) return; const saved = await onSave({ ...form, clientId: parseInt(form.clientId) }); if (saved !== false) onClose(); };
 
   return (
-    <Modal title="Open New Case" onClose={onClose} onSave={save} saveLabel="Open Case">
+    <Modal title={title} onClose={onClose} onSave={save} saveLabel={saveLabel}>
       <div className="form-row">
         <div className="form-group"><label className="form-label">Case Number</label><input className="form-control" value={form.caseNumber} onChange={set("caseNumber")} placeholder="2025-CIV-XXX" /></div>
         <div className="form-group"><label className="form-label">Type</label>
@@ -15,6 +15,11 @@ export default function AddCaseModal({ onClose, onSave, clients }) {
             {["civil", "criminal", "commercial", "family", "administrative"].map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
           </select>
         </div>
+      </div>
+      <div className="form-group"><label className="form-label">Status</label>
+        <select className="form-control" value={form.status} onChange={set("status")}>
+          {["active", "pending", "closed"].map(status => <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>)}
+        </select>
       </div>
       <div className="form-group"><label className="form-label">Case Title *</label><input className="form-control" value={form.title} onChange={set("title")} placeholder="Brief description" /></div>
       <div className="form-group"><label className="form-label">Client *</label>

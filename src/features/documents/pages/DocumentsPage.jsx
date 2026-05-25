@@ -40,6 +40,7 @@ export default function DocumentsPage({ docs, cases, clients, search, setSearch 
               ))}
             </tbody>
           </table>
+          {filtered.length === 0 && <div className="empty-state"><h3>No documents found</h3><p>Upload a document to store it here.</p></div>}
         </div>
       </div>
     </div>

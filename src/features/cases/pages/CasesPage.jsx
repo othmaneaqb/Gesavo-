@@ -52,6 +52,7 @@ export default function CasesPage({ cases, clients, search, setSearch, onSelect 
               })}
             </tbody>
           </table>
+          {filtered.length === 0 && <div className="empty-state"><h3>No cases found</h3><p>Create a case to begin tracking legal work.</p></div>}
         </div>
       </div>
     </div>

@@ -1,0 +1,60 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Calibri;}{\f1 Georgia;}}
+\fs28\b Dossier de synthese du projet - Application Ait El Hadj Avocat\b0\par
+\fs22 Date de preparation : 24 mai 2026\par\par
+\b Presentation generale\b0\par
+Le projet est une application web de gestion de cabinet d'avocat destinee au cabinet Ait El Hadj Avocat. Elle centralise la gestion des clients, dossiers, taches, audiences, documents, notes, finances et comptes utilisateurs.\par\par
+\b Technologies\b0\par
+Frontend : React 19, Create React App, react-app-rewired, Axios, CSS personnalise.\par
+Backend : Django, Django REST Framework, SimpleJWT, SQLite, CORS Headers.\par\par
+\b Architecture\b0\par
+Le projet contient un frontend React dans le dossier src et un backend Django REST dans le dossier backend. Les modules principaux sont auth, dashboard, clients, cases, tasks, calendar, documents, notes, finance et settings.\par\par
+\b Roles\b0\par
+Deux roles principaux existent : LAWYER et ASSISTANT. L'avocat dispose d'un acces complet, incluant Finance et Settings. L'assistant n'a pas acces a la partie finance.\par\par
+\b Fonctionnalites principales\b0\par
+- Login securise avec interface juridique premium.\par
+- Dashboard de synthese.\par
+- CRUD clients.\par
+- CRUD dossiers.\par
+- Taches liees aux dossiers avec archivage automatique apres 48 heures.\par
+- Calendrier et audiences.\par
+- Upload et gestion des documents.\par
+- Notes liees aux clients ou dossiers.\par
+- Finance reservee a l'avocat.\par
+- Settings avec profil cabinet, apparence, securite, notifications et gestion des comptes.\par
+- Centre de notifications reel pour taches, audiences et documents recents.\par
+- Export PDF imprimable des dossiers juridiques.\par
+- Generation de factures PDF depuis Finance.\par\par
+\b APIs principales\b0\par
+/api/users/\par
+/api/clients/\par
+/api/cases/\par
+/api/tasks/\par
+/api/events/\par
+/api/notes/\par
+/api/finance/\par
+/api/documents/\par\par
+\b Execution\b0\par
+Backend : cd backend puis .\\venv\\bin\\python.exe manage.py runserver 127.0.0.1:8000\par
+Frontend : npm.cmd start\par
+Application : http://localhost:3000\par\par
+\b Comptes demo\b0\par
+Avocat : demo / Demo12345!\par
+Assistant : assistant / Assistant12345!\par\par
+\b Structure proposee pour le rapport\b0\par
+1. Introduction\par
+2. Analyse des besoins\par
+3. Conception\par
+4. Realisation technique\par
+5. Fonctionnalites developpees\par
+6. Securite\par
+7. Tests et validation\par
+8. Conclusion et perspectives\par\par
+\b Conclusion\b0\par
+L'application Ait El Hadj Avocat est une solution complete de gestion de cabinet juridique, avec une separation claire entre frontend et backend, une API REST securisee, et une gestion realiste des roles avocat et assistant.\par
+}
+
+
+
+
+

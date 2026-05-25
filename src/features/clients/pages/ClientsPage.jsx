@@ -2,7 +2,7 @@ import { StatusBadge } from "@/components/ui";
 import { I } from "@/shared/constants";
 import { fmtCurrency, fmtDate } from "@/shared/utils";
 
-export default function ClientsPage({ clients, search, setSearch, onSelect }) {
+export default function ClientsPage({ clients, clientsState, search, setSearch, onSelect }) {
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.nationalId.includes(search) ||
@@ -20,6 +20,13 @@ export default function ClientsPage({ clients, search, setSearch, onSelect }) {
       </div>
       <div className="card">
         <div className="table-wrap">
+          {clientsState?.loading && <div className="empty-state"><h3>Loading clients...</h3></div>}
+          {!clientsState?.loading && clientsState?.error && (
+            <div className="empty-state">
+              <h3>Clients unavailable</h3>
+              <p>{clientsState.error}</p>
+            </div>
+          )}
           <table>
             <thead>
               <tr>
@@ -58,7 +65,9 @@ export default function ClientsPage({ clients, search, setSearch, onSelect }) {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="empty-state"><div className="icon">{I.clients}</div><h3>No clients found</h3><p>Try a different search term.</p></div>}
+          {!clientsState?.loading && !clientsState?.error && filtered.length === 0 && (
+            <div className="empty-state"><div className="icon">{I.clients}</div><h3>No clients found</h3><p>Try a different search term.</p></div>
+          )}
         </div>
       </div>
     </div>
