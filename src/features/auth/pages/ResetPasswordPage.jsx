@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import logo from "../../../assets/logo-ait-el-hadj-cropped.png";
 import { authService } from "../../../services/auth.service";
+import { useI18n } from "../../../i18n";
 
 export default function ResetPasswordPage() {
+  const { language, languages, setLanguage, t } = useI18n();
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const uid = params.get("uid") || "";
   const token = params.get("token") || "";
@@ -18,19 +20,19 @@ export default function ResetPasswordPage() {
   const handleSubmit = async event => {
     event.preventDefault();
     if (!uid || !token) {
-      setError("Lien de réinitialisation invalide.");
+      setError(t("reset.invalidLink"));
       return;
     }
     if (!form.password || !form.passwordConfirm) {
-      setError("Veuillez renseigner les deux champs.");
+      setError(t("reset.required"));
       return;
     }
     if (form.password.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      setError(t("reset.minLength"));
       return;
     }
     if (form.password !== form.passwordConfirm) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError(t("reset.mismatch"));
       return;
     }
 
@@ -44,9 +46,9 @@ export default function ResetPasswordPage() {
         password: form.password,
         passwordConfirm: form.passwordConfirm,
       });
-      setMessage("Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter.");
+      setMessage(t("reset.success"));
     } catch (err) {
-      setError(err.response?.data?.detail || "Lien invalide ou expiré.");
+      setError(err.response?.data?.detail || t("reset.expired"));
     } finally {
       setSubmitting(false);
     }
@@ -62,36 +64,40 @@ export default function ResetPasswordPage() {
       <section className="legal-login-panel">
         <div className="legal-login-inner">
           <div className="legal-brand">
-            <img src={logo} alt="Aït El Hadj Avocat" />
+            <img src={logo} alt={"A\u00EFt El Hadj Avocat"} />
           </div>
 
+          <select className="language-select legal-language-select" value={language} onChange={event => setLanguage(event.target.value)} aria-label="Language">
+            {languages.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}
+          </select>
+
           <div className="legal-login-heading">
-            <h2>Nouveau mot de passe</h2>
-            <p>Choisissez un mot de passe sécurisé pour récupérer l'accès à votre espace.</p>
+            <h2>{t("reset.title")}</h2>
+            <p>{t("reset.subtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group legal-form-group">
-              <label className="form-label">Nouveau mot de passe</label>
+              <label className="form-label">{t("reset.password")}</label>
               <input
                 className="form-control"
                 type="password"
                 value={form.password}
                 onChange={set("password")}
                 autoComplete="new-password"
-                placeholder="Au moins 8 caractères"
+                placeholder={t("reset.passwordPlaceholder")}
               />
             </div>
 
             <div className="form-group legal-form-group">
-              <label className="form-label">Confirmation</label>
+              <label className="form-label">{t("reset.confirm")}</label>
               <input
                 className="form-control"
                 type="password"
                 value={form.passwordConfirm}
                 onChange={set("passwordConfirm")}
                 autoComplete="new-password"
-                placeholder="Confirmer le mot de passe"
+                placeholder={t("reset.confirmPlaceholder")}
               />
             </div>
 
@@ -99,12 +105,12 @@ export default function ResetPasswordPage() {
             {message && <div className="success-note">{message}</div>}
 
             <button className="btn btn-gold auth-submit legal-submit" type="submit" disabled={submitting || Boolean(message)}>
-              {submitting ? "Réinitialisation..." : "Réinitialiser"}
+              {submitting ? t("reset.submitting") : t("reset.submit")}
             </button>
           </form>
 
           <button type="button" className="btn btn-ghost auth-submit reset-login-link" onClick={goLogin}>
-            Retour à la connexion
+            {t("reset.backLogin")}
           </button>
         </div>
       </section>

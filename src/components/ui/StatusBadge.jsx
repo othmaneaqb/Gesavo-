@@ -1,4 +1,7 @@
+import { useI18n } from "@/i18n";
+
 export default function StatusBadge({ status }) {
+  const { t } = useI18n();
   const map = { active: "badge-active", pending: "badge-pending", closed: "badge-closed", urgent: "badge-urgent", civil: "badge-civil", criminal: "badge-criminal", commercial: "badge-commercial", "in-progress": "badge-pending", todo: "badge-gold", done: "badge-active", upcoming: "badge-gold", completed: "badge-active" };
-  return <span className={`badge ${map[status] || "badge-closed"}`}>{status}</span>;
+  return <span className={`badge ${map[status] || "badge-closed"}`}>{t(`status.${status}`, status)}</span>;
 }

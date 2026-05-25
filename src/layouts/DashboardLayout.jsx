@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { fmtDate } from "@/shared/utils";
 import { I } from "@/shared/constants";
+import { useI18n } from "@/i18n";
 import logo from "@/assets/image.png";
 
 export default function DashboardLayout({
@@ -20,6 +21,7 @@ export default function DashboardLayout({
   modals,
 }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { language, languages, setLanguage, t } = useI18n();
   const activeRoute = navItems.find(n => n.key === page);
   const activeAction = activeRoute?.action;
   const showAction = activeAction && (
@@ -42,6 +44,18 @@ export default function DashboardLayout({
     setNotificationsOpen(false);
   };
 
+  const getActionLabel = action => {
+    const labels = {
+      "add-client": "actions.addClient",
+      "add-case": "actions.openCase",
+      "upload-doc": "actions.uploadDocument",
+      "add-hearing": "actions.scheduleHearing",
+      "add-expense": "actions.recordTransaction",
+      "add-task": "actions.newTask",
+    };
+    return t(labels[action?.modalType], action?.label);
+  };
+
   return (
     <div className="app">
       {/* SIDEBAR */}
@@ -50,18 +64,18 @@ export default function DashboardLayout({
           <img src={logo} alt={"A\u00EFt El Hadj Avocat"} />
         </div>
         <nav className="sidebar-nav">
-          <div className="nav-section-label">Navigation</div>
+          <div className="nav-section-label">{t("common.navigation")}</div>
           {navItems.filter(item => item.section !== "system").map(n => (
             <div key={n.key} className={`nav-item ${page === n.key ? "active" : ""}`} onClick={() => { setPage(n.key); setSelectedClient(null); setSelectedCase(null); }}>
               <span className="icon">{n.icon}</span>
-              <span>{n.label}</span>
+              <span>{t(`nav.${n.key}`, n.label)}</span>
             </div>
           ))}
-          <div className="nav-section-label" style={{ marginTop: 8 }}>System</div>
+          <div className="nav-section-label" style={{ marginTop: 8 }}>{t("common.system")}</div>
           {navItems.filter(item => item.section === "system").map(n => (
             <div key={n.key} className={`nav-item ${page === n.key ? "active" : ""}`} onClick={() => { setPage(n.key); setSelectedClient(null); setSelectedCase(null); }}>
               <span className="icon">{n.icon}</span>
-              <span>{n.label}</span>
+              <span>{t(`nav.${n.key}`, n.label)}</span>
             </div>
           ))}
         </nav>
@@ -78,7 +92,7 @@ export default function DashboardLayout({
             </div>
           </div>
           <button className="btn btn-ghost btn-sm w-full" style={{ marginTop: 12, justifyContent: "center" }} onClick={onLogout}>
-            Log out
+            {t("common.logout")}
           </button>
         </div>
       </aside>
@@ -87,9 +101,12 @@ export default function DashboardLayout({
       <main className="main">
         <header className="topbar">
           <h2 className="page-title">
-            {selectedClient ? selectedClient.name : selectedCase ? selectedCase.title : activeRoute?.label}
+            {selectedClient ? selectedClient.name : selectedCase ? selectedCase.title : t(`nav.${activeRoute?.key}`, activeRoute?.label)}
           </h2>
           <div className="topbar-actions">
+            <select className="language-select" value={language} onChange={event => setLanguage(event.target.value)} aria-label="Language">
+              {languages.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}
+            </select>
             <div className="notification-wrap">
               <button
                 className={`notification-button ${unreadCount ? "has-alerts" : ""}`}
@@ -105,19 +122,19 @@ export default function DashboardLayout({
                 <div className="notification-panel">
                   <div className="notification-header">
                     <div>
-                      <strong>Notifications</strong>
-                      <span>{"Alertes g\u00E9n\u00E9r\u00E9es depuis les donn\u00E9es du cabinet"}</span>
+                      <strong>{t("notifications.title")}</strong>
+                      <span>{t("notifications.subtitle")}</span>
                     </div>
-                    <button type="button" className="text-link" onClick={() => setNotificationsOpen(false)}>Fermer</button>
+                    <button type="button" className="text-link" onClick={() => setNotificationsOpen(false)}>{t("common.close")}</button>
                   </div>
 
                   {notifications.length === 0 ? (
-                    <div className="notification-empty">{"Aucune alerte importante pour le moment."}</div>
+                    <div className="notification-empty">{t("notifications.empty")}</div>
                   ) : (
                     <>
                       {groupedNotifications.urgent.length > 0 && (
                         <div className="notification-group">
-                          <div className="notification-group-title">Prioritaire</div>
+                          <div className="notification-group-title">{t("notifications.priority")}</div>
                           {groupedNotifications.urgent.map(item => (
                             <button key={item.id} type="button" className={`notification-item ${item.type}`} onClick={() => openNotification(item)}>
                               <span className="notification-dot" />
@@ -133,7 +150,7 @@ export default function DashboardLayout({
 
                       {groupedNotifications.normal.length > 0 && (
                         <div className="notification-group">
-                          <div className="notification-group-title">Suivi</div>
+                          <div className="notification-group-title">{t("notifications.followUp")}</div>
                           {groupedNotifications.normal.map(item => (
                             <button key={item.id} type="button" className={`notification-item ${item.type}`} onClick={() => openNotification(item)}>
                               <span className="notification-dot" />
@@ -153,7 +170,7 @@ export default function DashboardLayout({
             </div>
             {showAction && (
               <button className="btn btn-primary" onClick={() => setModal({ type: activeAction.modalType })}>
-                {activeAction.icon} {activeAction.label}
+                {activeAction.icon} {getActionLabel(activeAction)}
               </button>
             )}
           </div>

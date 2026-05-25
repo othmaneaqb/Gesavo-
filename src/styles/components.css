@@ -141,6 +141,119 @@
 
   .topbar-actions { display: flex; align-items: center; gap: 10px; }
 
+  .language-select {
+    height: 36px;
+    min-width: 62px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--slate);
+    padding: 0 10px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .language-select:hover,
+  .language-select:focus {
+    border-color: rgba(184,145,58,0.55);
+    color: var(--gold);
+  }
+
+  .legal-language-select {
+    display: block;
+    margin: -18px 0 20px auto;
+    background: rgba(255,255,255,0.62);
+  }
+
+  .rtl {
+    direction: rtl;
+  }
+
+  .rtl .sidebar,
+  .rtl .topbar,
+  .rtl .content,
+  .rtl .legal-login-panel {
+    direction: rtl;
+  }
+
+  .rtl .nav-item,
+  .rtl .user-pill,
+  .rtl .notification-header,
+  .rtl .legal-login-meta {
+    flex-direction: row-reverse;
+  }
+
+  .rtl .page-title,
+  .rtl .legal-login-heading,
+  .rtl .legal-login-footer,
+  .rtl .form-label,
+  .rtl .notification-item {
+    text-align: right;
+  }
+
+  .rtl .legal-language-select {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .rtl .topbar-actions,
+  .rtl .card-header,
+  .rtl .modal-header,
+  .rtl .modal-footer,
+  .rtl .toggle-row {
+    flex-direction: row-reverse;
+  }
+
+  .rtl thead th,
+  .rtl tbody td,
+  .rtl .info-item label,
+  .rtl .info-item span {
+    text-align: right;
+  }
+
+  .rtl .search-bar .search-icon {
+    left: auto;
+    right: 11px;
+  }
+
+  .rtl .search-bar input {
+    padding-left: 14px;
+    padding-right: 36px;
+    text-align: right;
+  }
+
+  .rtl .notification-panel {
+    right: auto;
+    left: 0;
+  }
+
+  .rtl .notification-item {
+    grid-template-columns: 1fr 9px;
+  }
+
+  .rtl .notification-dot {
+    grid-column: 2;
+  }
+
+  .rtl .legal-input-wrap > span {
+    left: auto;
+    right: 15px;
+  }
+
+  .rtl .legal-input-wrap > em {
+    right: auto;
+    left: 15px;
+  }
+
+  .rtl .legal-input-wrap .form-control {
+    padding-left: 42px;
+    padding-right: 44px;
+    text-align: right;
+  }
+
   .notification-wrap {
     position: relative;
   }

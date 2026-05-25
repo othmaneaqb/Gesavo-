@@ -1,8 +1,10 @@
 import { StatusBadge } from "@/components/ui";
+import { useI18n } from "@/i18n";
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
 
 export default function CasesPage({ cases, clients, search, setSearch, onSelect }) {
+  const { t } = useI18n();
   const getClient = id => clients.find(c => c.id === id);
   const filtered = cases.filter(c =>
     c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -15,7 +17,7 @@ export default function CasesPage({ cases, clients, search, setSearch, onSelect 
       <div style={{ marginBottom: 20 }}>
         <div className="search-bar">
           <span className="search-icon">{I.search}</span>
-          <input placeholder="Search by title, case number, court…" value={search} onChange={e => setSearch(e.target.value)} />
+          <input placeholder={t("ui.searchCases")} value={search} onChange={e => setSearch(e.target.value)} />
         </div>
       </div>
       <div className="card">
@@ -23,13 +25,13 @@ export default function CasesPage({ cases, clients, search, setSearch, onSelect 
           <table>
             <thead>
               <tr>
-                <th>Case</th>
-                <th>Client</th>
-                <th>Type</th>
-                <th>Court</th>
-                <th>Judge</th>
-                <th>Next Hearing</th>
-                <th>Status</th>
+                <th>{t("ui.case")}</th>
+                <th>{t("ui.client")}</th>
+                <th>{t("ui.type")}</th>
+                <th>{t("ui.court")}</th>
+                <th>{t("ui.judge")}</th>
+                <th>{t("ui.nextHearing")}</th>
+                <th>{t("ui.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -42,7 +44,7 @@ export default function CasesPage({ cases, clients, search, setSearch, onSelect 
                       <div style={{ fontSize: 11, color: "var(--muted)" }}>{c.caseNumber}</div>
                     </td>
                     <td>{client?.name}</td>
-                    <td><span className={`badge badge-${c.type}`}>{c.type}</span></td>
+                    <td><span className={`badge badge-${c.type}`}>{t(`status.${c.type}`, c.type)}</span></td>
                     <td style={{ fontSize: 12, color: "var(--muted)" }}>{c.court}</td>
                     <td style={{ fontSize: 12 }}>{c.judge}</td>
                     <td style={{ fontSize: 12, color: "var(--gold)" }}>{fmtDate(c.nextHearing)}</td>
@@ -52,7 +54,7 @@ export default function CasesPage({ cases, clients, search, setSearch, onSelect 
               })}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="empty-state"><h3>No cases found</h3><p>Create a case to begin tracking legal work.</p></div>}
+          {filtered.length === 0 && <div className="empty-state"><h3>{t("ui.noCasesFound")}</h3><p>{t("ui.createCaseHint")}</p></div>}
         </div>
       </div>
     </div>

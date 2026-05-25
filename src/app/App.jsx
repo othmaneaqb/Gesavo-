@@ -21,6 +21,7 @@ import { financeService } from "@/services/finance.service";
 import { notesService } from "@/services/notes.service";
 import { usersService } from "@/services/users.service";
 import AppProviders from "./providers";
+import { I18nProvider } from "@/i18n";
 import { appRoutes } from "./routes";
 // APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
@@ -149,7 +150,7 @@ export default function App() {
       const user = await authService.getProfile();
       setAuthState({ loading: false, user, error: null });
     } catch {
-      setAuthState({ loading: false, user: null, error: "Invalid username or password." });
+      setAuthState({ loading: false, user: null, error: "auth.invalidCredentials" });
     }
   };
 
@@ -463,20 +464,20 @@ export default function App() {
     ? activeRoute.getDetailProps(routeContext)
     : activeRoute.getProps(routeContext);
 
-  if (authState.loading) {
-    return <div className="auth-shell"><div className="text-muted">Loading session...</div></div>;
-  }
+  const appContent = (() => {
+    if (authState.loading) {
+      return <div className="auth-shell"><div className="text-muted">Loading session...</div></div>;
+    }
 
-  if (!authState.user && window.location.pathname === "/reset-password") {
-    return <ResetPasswordPage />;
-  }
+    if (!authState.user && window.location.pathname === "/reset-password") {
+      return <ResetPasswordPage />;
+    }
 
-  if (!authState.user) {
-    return <LoginPage onLogin={login} error={authState.error} />;
-  }
+    if (!authState.user) {
+      return <LoginPage onLogin={login} error={authState.error} />;
+    }
 
-  return (
-    <AppProviders>
+    return (
       <DashboardLayout
         page={page}
         setPage={setPage}
@@ -522,7 +523,9 @@ export default function App() {
       >
         <ActivePage {...activePageProps} />
       </DashboardLayout>
-    </AppProviders>
-  );
+    );
+  })();
+
+  return <I18nProvider>{authState.user ? <AppProviders>{appContent}</AppProviders> : appContent}</I18nProvider>;
 }
 

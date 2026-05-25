@@ -1,6 +1,7 @@
 import { useState } from "react";
 import logo from "../../../assets/logo-ait-el-hadj-cropped.png";
 import { authService } from "../../../services/auth.service";
+import { useI18n } from "../../../i18n";
 
 function MailIcon() {
   return (
@@ -42,6 +43,7 @@ function ScaleIcon() {
 }
 
 export default function LoginPage({ onLogin, error }) {
+  const { language, languages, setLanguage, t } = useI18n();
   const [form, setForm] = useState({ identifier: "", password: "", remember: true });
   const [submitting, setSubmitting] = useState(false);
   const [fieldError, setFieldError] = useState("");
@@ -59,7 +61,7 @@ export default function LoginPage({ onLogin, error }) {
   const handleSubmit = async event => {
     event.preventDefault();
     if (!form.identifier.trim() || !form.password.trim()) {
-      setFieldError("Veuillez renseigner votre email et votre mot de passe.");
+      setFieldError(t("auth.missingFields"));
       return;
     }
 
@@ -75,7 +77,7 @@ export default function LoginPage({ onLogin, error }) {
   const handleRecovery = async event => {
     event.preventDefault();
     if (!recoveryEmail.trim()) {
-      setRecoveryError("Veuillez saisir votre adresse email.");
+      setRecoveryError(t("auth.recoveryEmailRequired"));
       return;
     }
 
@@ -85,7 +87,7 @@ export default function LoginPage({ onLogin, error }) {
       await authService.requestPasswordReset(recoveryEmail.trim());
       setRecoverySent(true);
     } catch {
-      setRecoveryError("Impossible d'envoyer la demande pour le moment.");
+      setRecoveryError(t("auth.recoveryError"));
     } finally {
       setRecoveryLoading(false);
     }
@@ -96,31 +98,35 @@ export default function LoginPage({ onLogin, error }) {
       <section className="legal-login-panel">
         <div className="legal-login-inner">
           <div className="legal-brand">
-            <img src={logo} alt="Aït El Hadj Avocat" />
+            <img src={logo} alt={"A\u00EFt El Hadj Avocat"} />
           </div>
 
+          <select className="language-select legal-language-select" value={language} onChange={event => setLanguage(event.target.value)} aria-label="Language">
+            {languages.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}
+          </select>
+
           <div className="legal-login-heading">
-            <h2>Connexion</h2>
-            <p>Accédez à votre espace sécurisé de gestion du cabinet.</p>
+            <h2>{t("auth.loginTitle")}</h2>
+            <p>{t("auth.loginSubtitle")}</p>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group legal-form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label">{t("auth.email")}</label>
               <div className="legal-input-wrap">
                 <span><MailIcon /></span>
                 <input
                   className="form-control"
                   value={form.identifier}
                   onChange={set("identifier")}
-                  placeholder="Adresse e-mail"
+                  placeholder={t("auth.emailPlaceholder")}
                   autoComplete="username"
                 />
               </div>
             </div>
 
             <div className="form-group legal-form-group">
-              <label className="form-label">Mot de passe</label>
+              <label className="form-label">{t("auth.password")}</label>
               <div className="legal-input-wrap">
                 <span><LockIcon /></span>
                 <input
@@ -128,7 +134,7 @@ export default function LoginPage({ onLogin, error }) {
                   type="password"
                   value={form.password}
                   onChange={set("password")}
-                  placeholder="Mot de passe"
+                  placeholder={t("auth.passwordPlaceholder")}
                   autoComplete="current-password"
                 />
                 <em><EyeIcon /></em>
@@ -138,18 +144,18 @@ export default function LoginPage({ onLogin, error }) {
             <div className="legal-login-meta">
               <label className="legal-checkbox">
                 <input type="checkbox" checked={form.remember} onChange={set("remember")} />
-                <span>Se souvenir de moi</span>
+                <span>{t("auth.remember")}</span>
               </label>
               <button type="button" className="text-link" onClick={() => setRecoveryOpen(prev => !prev)}>
-                Mot de passe oublié ?
+                {t("auth.forgot")}
               </button>
             </div>
 
-            {(fieldError || error) && <div className="auth-error">{fieldError || error}</div>}
+            {(fieldError || error) && <div className="auth-error">{fieldError || t(error)}</div>}
 
             <button className="btn btn-gold auth-submit legal-submit" type="submit" disabled={submitting}>
               <LockIcon />
-              {submitting ? "Connexion en cours..." : "Se connecter"}
+              {submitting ? t("auth.submitting") : t("auth.submit")}
             </button>
           </form>
 
@@ -158,18 +164,18 @@ export default function LoginPage({ onLogin, error }) {
           </div>
 
           <div className="legal-login-footer">
-            <strong>Cabinet Aït El Hadj</strong>
-            <span>Rigueur. Confidentialité. Excellence.</span>
+            <strong>{t("auth.footerFirm")}</strong>
+            <span>{t("auth.footerValues")}</span>
           </div>
 
           {recoveryOpen && (
             <form className="recovery-card" onSubmit={handleRecovery}>
               <div>
-                <h3>Récupération du mot de passe</h3>
-                <p>Entrez votre email professionnel. Si le compte existe, vous recevrez un lien sécurisé pour choisir un nouveau mot de passe.</p>
+                <h3>{t("auth.recoveryTitle")}</h3>
+                <p>{t("auth.recoveryText")}</p>
               </div>
               <div className="form-group">
-                <label className="form-label">Email</label>
+                <label className="form-label">{t("auth.email")}</label>
                 <input
                   className="form-control"
                   value={recoveryEmail}
@@ -178,9 +184,9 @@ export default function LoginPage({ onLogin, error }) {
                 />
               </div>
               {recoveryError && <div className="auth-error">{recoveryError}</div>}
-              {recoverySent && <div className="success-note">Si ce compte existe, un lien de réinitialisation a été envoyé.</div>}
+              {recoverySent && <div className="success-note">{t("auth.recoverySuccess")}</div>}
               <button className="btn btn-ghost" type="submit" disabled={recoveryLoading}>
-                {recoveryLoading ? "Envoi en cours..." : "Envoyer le lien"}
+                {recoveryLoading ? t("auth.recoverySending") : t("auth.recoverySend")}
               </button>
             </form>
           )}
