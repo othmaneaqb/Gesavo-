@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { fmtDate } from "@/shared/utils";
+import { I } from "@/shared/constants";
+import logo from "@/assets/image.png";
 
 export default function DashboardLayout({
   page,
@@ -45,8 +47,7 @@ export default function DashboardLayout({
       {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <h1>GESAVO </h1>
-          <span>AIT EL HADJ Cabinet</span>
+          <img src={logo} alt={"A\u00EFt El Hadj Avocat"} />
         </div>
         <nav className="sidebar-nav">
           <div className="nav-section-label">Navigation</div>
@@ -96,7 +97,7 @@ export default function DashboardLayout({
                 onClick={() => setNotificationsOpen(prev => !prev)}
                 aria-label="Notifications"
               >
-                <span>🔔</span>
+                <span className="notification-bell-icon">{I.bell}</span>
                 {unreadCount > 0 && <em>{unreadCount > 9 ? "9+" : unreadCount}</em>}
               </button>
 
@@ -105,13 +106,13 @@ export default function DashboardLayout({
                   <div className="notification-header">
                     <div>
                       <strong>Notifications</strong>
-                      <span>Alertes générées depuis les données du cabinet</span>
+                      <span>{"Alertes g\u00E9n\u00E9r\u00E9es depuis les donn\u00E9es du cabinet"}</span>
                     </div>
                     <button type="button" className="text-link" onClick={() => setNotificationsOpen(false)}>Fermer</button>
                   </div>
 
                   {notifications.length === 0 ? (
-                    <div className="notification-empty">Aucune alerte importante pour le moment.</div>
+                    <div className="notification-empty">{"Aucune alerte importante pour le moment."}</div>
                   ) : (
                     <>
                       {groupedNotifications.urgent.length > 0 && (

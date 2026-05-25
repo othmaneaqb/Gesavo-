@@ -1,7 +1,7 @@
-/* ── Layout ── */
+﻿/* â”€â”€ Layout â”€â”€ */
   .app { display: flex; height: 100vh; overflow: hidden; }
 
-  /* ── Sidebar ── */
+  /* â”€â”€ Sidebar â”€â”€ */
   .sidebar {
     width: var(--sidebar-w);
     background: var(--ink);
@@ -13,36 +13,46 @@
   }
 
   .sidebar-logo {
-    padding: 28px 24px 20px;
+    padding: 22px 20px 18px;
     border-bottom: 1px solid #222;
+    text-align: center;
+  }
+
+  .sidebar-logo img {
+    width: 154px;
+    height: auto;
+    display: block;
+    margin: 0 auto 14px;
+    border-radius: 12px;
+    opacity: 0.98;
   }
 
   .sidebar-logo h1 {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--gold);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.08em;
     line-height: 1.2;
   }
 
   .sidebar-logo span {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     color: var(--muted);
     display: block;
-    margin-top: 2px;
+    margin-top: 5px;
   }
 
   .sidebar-nav { padding: 16px 0; flex: 1; }
 
   .nav-section-label {
-    font-size: 9px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.18em;
     color: #555;
     padding: 12px 24px 6px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
   }
 
   .nav-item {
@@ -53,9 +63,11 @@
     color: #888;
     cursor: pointer;
     transition: all 0.15s;
-    font-size: 13.5px;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
     border-left: 3px solid transparent;
-    font-weight: 400;
+    font-weight: 500;
   }
 
   .nav-item:hover { color: #ccc; background: rgba(255,255,255,0.04); }
@@ -64,6 +76,7 @@
     color: var(--gold);
     border-left-color: var(--gold);
     background: rgba(184,145,58,0.08);
+    font-weight: 600;
   }
 
   .nav-item .icon { font-size: 15px; width: 18px; text-align: center; opacity: 0.85; }
@@ -97,7 +110,7 @@
   .user-name { color: #ddd; font-size: 13px; font-weight: 500; }
   .user-role { color: #666; font-size: 11px; }
 
-  /* ── Main ── */
+  /* â”€â”€ Main â”€â”€ */
   .main {
     flex: 1;
     display: flex;
@@ -117,7 +130,10 @@
   }
 
   .page-title {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
     font-size: 22px;
     color: var(--ink);
     flex: 1;
@@ -289,7 +305,7 @@
     border: none;
     cursor: pointer;
     font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
     font-weight: 500;
     transition: all 0.15s;
   }
@@ -323,7 +339,7 @@
 
   .btn-sm { padding: 5px 10px; font-size: 12px; }
 
-  /* ── Content ── */
+  /* â”€â”€ Content â”€â”€ */
   .content {
     flex: 1;
     overflow-y: auto;
@@ -331,7 +347,7 @@
     background: var(--paper);
   }
 
-  /* ── Cards ── */
+  /* â”€â”€ Cards â”€â”€ */
   .card {
     background: var(--white);
     border: 1px solid var(--border);
@@ -347,12 +363,15 @@
   }
 
   .card-title {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
     font-size: 17px;
     color: var(--ink);
   }
 
-  /* ── Stats Row ── */
+  /* â”€â”€ Stats Row â”€â”€ */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -386,7 +405,7 @@
   }
 
   .stat-value {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 32px;
     color: var(--ink);
     line-height: 1;
@@ -394,11 +413,11 @@
 
   .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-  /* ── Grid ── */
+  /* â”€â”€ Grid â”€â”€ */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
 
-  /* ── Table ── */
+  /* â”€â”€ Table â”€â”€ */
   .table-wrap { overflow-x: auto; }
 
   table {
@@ -431,7 +450,7 @@
 
   td.bold { color: var(--ink); font-weight: 500; }
 
-  /* ── Badges ── */
+  /* â”€â”€ Badges â”€â”€ */
   .badge {
     display: inline-flex;
     align-items: center;
@@ -451,7 +470,7 @@
   .badge-criminal { background: #FDECEA; color: #8B1A1A; }
   .badge-commercial { background: #EEF5E8; color: #2A6040; }
 
-  /* ── Search Bar ── */
+  /* â”€â”€ Search Bar â”€â”€ */
   .search-bar {
     position: relative;
     flex: 1;
@@ -464,7 +483,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
     background: var(--paper);
     color: var(--ink);
     outline: none;
@@ -482,7 +501,7 @@
     font-size: 14px;
   }
 
-  /* ── Form ── */
+  /* â”€â”€ Form â”€â”€ */
   .form-group { margin-bottom: 16px; }
 
   .form-label {
@@ -500,7 +519,7 @@
     border: 1px solid var(--border);
     border-radius: 7px;
     font-size: 13.5px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
     color: var(--ink);
     background: var(--white);
     outline: none;
@@ -515,7 +534,7 @@
 
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-  /* ── Modal ── */
+  /* â”€â”€ Modal â”€â”€ */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -552,7 +571,10 @@
   }
 
   .modal-title {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
     font-size: 20px;
   }
 
@@ -578,7 +600,7 @@
 
   .close-btn:hover { color: var(--ink); }
 
-  /* ── Detail Panel ── */
+  /* â”€â”€ Detail Panel â”€â”€ */
   .detail-panel {
     background: var(--white);
     border: 1px solid var(--border);
@@ -648,7 +670,7 @@
     display: none;
   }
 
-  /* ── Calendar ── */
+  /* â”€â”€ Calendar â”€â”€ */
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -698,7 +720,7 @@
     margin-top: 3px;
   }
 
-  /* ── Kanban / Tasks ── */
+  /* â”€â”€ Kanban / Tasks â”€â”€ */
   .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
   .kanban-col {
@@ -734,7 +756,7 @@
 
   .task-meta { font-size: 11.5px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-  /* ── Activity Feed ── */
+  /* â”€â”€ Activity Feed â”€â”€ */
   .activity-list { list-style: none; }
 
   .activity-item {
@@ -757,7 +779,7 @@
   .activity-text { font-size: 13px; color: var(--slate); }
   .activity-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  /* ── Finance ── */
+  /* â”€â”€ Finance â”€â”€ */
   .balance-bar {
     height: 6px;
     background: var(--cream);
@@ -914,7 +936,7 @@
     margin-bottom: 4px;
   }
 
-  /* ── Tabs ── */
+  /* â”€â”€ Tabs â”€â”€ */
   .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
 
   .tab {
@@ -931,7 +953,7 @@
   .tab:hover { color: var(--ink); }
   .tab.active { color: var(--ink); border-bottom-color: var(--gold); }
 
-  /* ── Empty State ── */
+  /* â”€â”€ Empty State â”€â”€ */
   .empty-state {
     text-align: center;
     padding: 48px 24px;
@@ -942,7 +964,7 @@
   .empty-state h3 { font-size: 18px; color: var(--slate); margin-bottom: 6px; }
   .empty-state p { font-size: 13px; }
 
-  /* ── Notifications ── */
+  /* â”€â”€ Notifications â”€â”€ */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -958,7 +980,7 @@
     max-width: 320px;
   }
 
-  /* ── Upload Zone ── */
+  /* â”€â”€ Upload Zone â”€â”€ */
   .drop-zone {
     border: 2px dashed var(--border);
     border-radius: 10px;
@@ -977,7 +999,7 @@
 
   .drop-zone .icon { font-size: 32px; margin-bottom: 10px; }
 
-  /* ── Auth ── */
+  /* â”€â”€ Auth â”€â”€ */
   .auth-shell {
     min-height: 100vh;
     display: flex;
@@ -1272,7 +1294,7 @@
   }
 
   .legal-visual-glyph {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 116px;
     line-height: 0.72;
     font-style: italic;
@@ -1324,7 +1346,7 @@
   }
 
   .legal-visual-caption strong {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 400;
   }
@@ -1645,3 +1667,4 @@
       color: #fff !important;
     }
   }
+
