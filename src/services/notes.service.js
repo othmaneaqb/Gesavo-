@@ -20,4 +20,5 @@ export const notesService = {
   getAll: async () => (await api.get("notes/")).data.map(toFrontendNote),
   create: async (data) => toFrontendNote((await api.post("notes/", toBackendNote(data))).data),
   update: async (id, data) => toFrontendNote((await api.put(`notes/${id}/`, toBackendNote(data))).data),
+  delete: async (id) => api.delete(`notes/${id}/`),
 };

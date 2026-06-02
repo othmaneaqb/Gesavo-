@@ -3,7 +3,7 @@ import { DocRow } from "@/features/documents";
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
 
-export default function CaseDetail({ caseItem, clients, hearings, docs, tasks, onBack, onEdit, onDelete }) {
+export default function CaseDetail({ caseItem, clients, hearings, docs, tasks, onBack, onEdit, onDelete, onEditDocument, onDeleteDocument }) {
   const client = clients.find(c => c.id === caseItem.clientId);
   const caseHearings = hearings.filter(h => h.caseId === caseItem.id);
   const caseDocs = docs.filter(d => d.caseId === caseItem.id);
@@ -99,7 +99,9 @@ export default function CaseDetail({ caseItem, clients, hearings, docs, tasks, o
           </div>
           <div className="detail-section">
             <h4>Documents ({caseDocs.length})</h4>
-            {caseDocs.map(d => <DocRow key={d.id} doc={d} />)}
+            {caseDocs.map(d => (
+              <DocRow key={d.id} doc={d} onEdit={onEditDocument} onDelete={onDeleteDocument} />
+            ))}
             {caseDocs.length === 0 && <div className="empty-state"><h3>No documents</h3></div>}
           </div>
           <div className="case-print-footer">

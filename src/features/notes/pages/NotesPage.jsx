@@ -3,7 +3,7 @@ import { useI18n } from "@/i18n";
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
 
-export default function NotesPage({ clients, notes, onCreate, onUpdate }) {
+export default function NotesPage({ clients, notes, onCreate, onUpdate, onDelete }) {
   const { t } = useI18n();
   const [editing, setEditing] = useState(null);
   const [newNote, setNewNote] = useState({ title: "", body: "", clientId: "" });
@@ -21,6 +21,12 @@ export default function NotesPage({ clients, notes, onCreate, onUpdate }) {
     setEditing(null);
   };
 
+  const deleteExisting = async () => {
+    if (!editing || editing === "new") return;
+    const deleted = await onDelete(editing.id);
+    if (deleted !== false) setEditing(null);
+  };
+
   return (
     <div>
       {!editing ? (
@@ -33,6 +39,16 @@ export default function NotesPage({ clients, notes, onCreate, onUpdate }) {
                 <div key={note.id} className="card" style={{ cursor: "pointer" }} onClick={() => setEditing(note)}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <h4 style={{ fontFamily: "var(--font-heading)", fontSize: 16, lineHeight: 1.3 }}>{note.title}</h4>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      style={{ fontSize: 10, padding: "3px 7px" }}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(note.id);
+                      }}
+                    >
+                      {t("ui.delete")}
+                    </button>
                   </div>
                   {client && <div style={{ fontSize: 11, color: "var(--gold)", marginBottom: 8 }}>↳ {client.name}</div>}
                   <p style={{ fontSize: 13, color: "var(--slate)", lineHeight: 1.6 }}>{note.body.slice(0, 120)}{note.body.length > 120 ? "..." : ""}</p>
@@ -61,7 +77,10 @@ export default function NotesPage({ clients, notes, onCreate, onUpdate }) {
               <label className="form-label">{t("ui.note")}</label>
               <textarea className="form-control" rows={6} value={editing === "new" ? newNote.body : editing.body} onChange={event => editing === "new" ? setNewNote(prev => ({ ...prev, body: event.target.value })) : setEditing(prev => ({ ...prev, body: event.target.value }))} placeholder={t("ui.writeNote")} />
             </div>
-            <button className="btn btn-primary" onClick={editing === "new" ? saveNew : saveExisting}>{t("ui.saveNote")}</button>
+            <div className="flex gap-2">
+              <button className="btn btn-primary" onClick={editing === "new" ? saveNew : saveExisting}>{t("ui.saveNote")}</button>
+              {editing !== "new" && <button className="btn btn-danger" onClick={deleteExisting}>{t("ui.delete")}</button>}
+            </div>
           </div>
         </div>
       )}

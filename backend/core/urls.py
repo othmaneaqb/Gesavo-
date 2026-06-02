@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/notes/', include('notes.urls')),
     path('api/finance/', include('finance.urls')),
     path('api/documents/', include('documents.urls')),
+    path('api/chatbot/', include('chatbot.urls')),
     path('api-auth/', include('rest_framework.urls')), # Adds login button to browsable API
 ]
 

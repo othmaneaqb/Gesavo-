@@ -10,7 +10,7 @@ const weekdayLabels = {
 
 const localeByLanguage = { fr: "fr-FR", en: "en-US", ar: "ar-MA" };
 
-export default function CalendarPage({ hearings, cases }) {
+export default function CalendarPage({ hearings, cases, onSelectHearing }) {
   const { language, t } = useI18n();
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -18,7 +18,10 @@ export default function CalendarPage({ hearings, cases }) {
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
   const monthName = currentDate.toLocaleString(localeByLanguage[language] || "fr-FR", { month: "long", year: "numeric" });
 
-  const hearingDates = hearings.map(h => parseInt(h.date.split("-")[2]));
+  const hearingsInCurrentMonth = hearings.filter(h => {
+    const eventDate = new Date(h.date);
+    return eventDate.getFullYear() === currentDate.getFullYear() && eventDate.getMonth() === currentDate.getMonth();
+  });
 
   const prev = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1));
   const next = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + 1));
@@ -40,9 +43,16 @@ export default function CalendarPage({ hearings, cases }) {
           {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
           {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
             const isToday = day === today.getDate() && currentDate.getMonth() === today.getMonth();
-            const hasEvent = hearingDates.includes(day);
+            const dayHearings = hearingsInCurrentMonth.filter(h => parseInt(h.date.split("-")[2]) === day);
+            const hasEvent = dayHearings.length > 0;
             return (
-              <div key={day} className={`cal-day ${isToday ? "today" : ""}`}>
+              <div
+                key={day}
+                className={`cal-day ${isToday ? "today" : ""}`}
+                onClick={() => hasEvent && onSelectHearing?.(dayHearings[0])}
+                style={hasEvent ? { cursor: "pointer" } : undefined}
+                title={hasEvent ? dayHearings.map(h => h.title).join(", ") : undefined}
+              >
                 <span className="day-num">{day}</span>
                 {hasEvent && <div className="cal-dot" />}
               </div>
@@ -55,7 +65,12 @@ export default function CalendarPage({ hearings, cases }) {
         {upcomingList.map(h => {
           const caseItem = cases.find(c => c.id === h.caseId);
           return (
-            <div key={h.id} style={{ padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
+            <div
+              key={h.id}
+              onClick={() => onSelectHearing?.(h)}
+              style={{ padding: "12px 0", borderBottom: "1px solid var(--border)", cursor: "pointer" }}
+              title={t("forms.editHearing")}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                 <div>
                   <div style={{ fontWeight: 500, fontSize: 13.5 }}>{h.title}</div>
@@ -72,7 +87,12 @@ export default function CalendarPage({ hearings, cases }) {
           <div style={{ marginTop: 16 }}>
             <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--muted)", marginBottom: 8 }}>{t("ui.pastHearings")}</div>
             {hearings.filter(h => h.status === "completed").map(h => (
-              <div key={h.id} style={{ padding: "10px 0", borderBottom: "1px solid var(--border)", opacity: 0.7 }}>
+              <div
+                key={h.id}
+                onClick={() => onSelectHearing?.(h)}
+                style={{ padding: "10px 0", borderBottom: "1px solid var(--border)", opacity: 0.7, cursor: "pointer" }}
+                title={t("forms.editHearing")}
+              >
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{h.title}</div>
                 <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>{fmtDate(h.date)}</div>
                 {h.outcome && <div style={{ fontSize: 12, color: "var(--slate)", marginTop: 4, fontStyle: "italic" }}>{t("ui.outcome")}: {h.outcome}</div>}

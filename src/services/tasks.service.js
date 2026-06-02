@@ -29,6 +29,8 @@ const toBackendTask = (item) => ({
 export const tasksService = {
   getAll: async () => (await api.get("tasks/")).data.map(toFrontendTask),
   create: async (data) => toFrontendTask((await api.post("tasks/", toBackendTask({ ...data, status: "todo" }))).data),
+  update: async (id, data) => toFrontendTask((await api.patch(`tasks/${id}/`, toBackendTask(data))).data),
   updateStatus: async (id, status) => toFrontendTask((await api.patch(`tasks/${id}/`, { status: reverseStatusMap[status] })).data),
   restore: async (id) => toFrontendTask((await api.post(`tasks/${id}/restore/`)).data),
+  delete: async (id) => api.delete(`tasks/${id}/`),
 };

@@ -3,6 +3,7 @@ import { fmtDate } from "@/shared/utils";
 import { I } from "@/shared/constants";
 import { useI18n } from "@/i18n";
 import logo from "@/assets/image.png";
+import { ChatbotWidget } from "@/features/chatbot";
 
 export default function DashboardLayout({
   page,
@@ -182,6 +183,7 @@ export default function DashboardLayout({
       </main>
 
       {modals}
+      <ChatbotWidget user={user} />
       {toast && <div className="toast">{toast}</div>}
     </div>
   );

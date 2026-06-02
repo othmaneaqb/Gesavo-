@@ -34,4 +34,8 @@ const toBackendHearing = (item) => {
 export const hearingsService = {
   getAll: async () => (await api.get("events/")).data.map(toFrontendHearing),
   create: async (data) => toFrontendHearing((await api.post("events/", toBackendHearing({ ...data, status: "upcoming" }))).data),
+  update: async (id, data) => toFrontendHearing((await api.patch(`events/${id}/`, toBackendHearing(data))).data),
+  delete: async (id) => {
+    await api.delete(`events/${id}/`);
+  },
 };

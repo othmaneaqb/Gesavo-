@@ -3,21 +3,6 @@ import { useI18n } from "@/i18n";
 import SettingsSection from "../components/SettingsSection";
 import Toggle from "../components/Toggle";
 
-const defaultSettings = {
-  firmName: "Cabinet Ait El Hadj",
-  email: "contact@aitelhadj-avocat.com",
-  phone: "+212 5 22 00 00 00",
-  address: "Casablanca, Maroc",
-  specialty: "Droit civil et commercial",
-  darkMode: true,
-  primaryColor: "gold",
-  language: "fr",
-  twoFactor: false,
-  hearingAlerts: true,
-  documentAlerts: true,
-  taskAlerts: true,
-};
-
 const emptyUserForm = {
   username: "",
   email: "",
@@ -28,14 +13,16 @@ const emptyUserForm = {
   is_active: true,
 };
 
-export default function SettingsPage({ usersService, currentUser, onToast, onLogout }) {
+export default function SettingsPage({ usersService, currentUser, onToast, onLogout, appSettings, onSettingsChange }) {
   const { language, languages, setLanguage, t } = useI18n();
-  const [settings, setSettings] = useState({ ...defaultSettings, language });
-  const [savedSettings, setSavedSettings] = useState({ ...defaultSettings, language });
+  const [settings, setSettings] = useState({ ...appSettings, language });
+  const [savedSettings, setSavedSettings] = useState({ ...appSettings, language });
   const [users, setUsers] = useState([]);
   const [userForm, setUserForm] = useState(emptyUserForm);
   const [resetTarget, setResetTarget] = useState(null);
   const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [currentPasswordConfirm, setCurrentPasswordConfirm] = useState("");
   const [loadingUsers, setLoadingUsers] = useState(true);
 
   useEffect(() => {
@@ -54,7 +41,11 @@ export default function SettingsPage({ usersService, currentUser, onToast, onLog
 
   const setSetting = key => event => {
     const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings(prev => {
+      const next = { ...prev, [key]: value };
+      onSettingsChange(next);
+      return next;
+    });
     if (key === "language") setLanguage(value);
   };
 
@@ -65,13 +56,34 @@ export default function SettingsPage({ usersService, currentUser, onToast, onLog
 
   const saveSettings = () => {
     setSavedSettings(settings);
+    onSettingsChange(settings, { persist: true });
     onToast(t("settings.saved"));
   };
 
   const resetSettings = () => {
     setSettings(savedSettings);
+    onSettingsChange(savedSettings);
     setLanguage(savedSettings.language);
     onToast(t("settings.reset"));
+  };
+
+  const changeCurrentPassword = async () => {
+    if (!currentPassword || currentPassword.length < 8) {
+      onToast(t("reset.minLength"));
+      return;
+    }
+    if (currentPassword !== currentPasswordConfirm) {
+      onToast(t("reset.mismatch"));
+      return;
+    }
+    try {
+      await usersService.resetPassword(currentUser.id, currentPassword);
+      setCurrentPassword("");
+      setCurrentPasswordConfirm("");
+      onToast(t("settings.passwordReset"));
+    } catch {
+      onToast(t("settings.passwordResetError"));
+    }
   };
 
   const createUser = async () => {
@@ -149,9 +161,10 @@ export default function SettingsPage({ usersService, currentUser, onToast, onLog
 
       <SettingsSection title={t("settings.security")} description={t("settings.securityDesc")}>
         <div className="form-row">
-          <div className="form-group"><label className="form-label">{t("settings.newPassword")}</label><input className="form-control" type="password" placeholder="••••••••" /></div>
-          <div className="form-group"><label className="form-label">{t("settings.confirmation")}</label><input className="form-control" type="password" placeholder="••••••••" /></div>
+          <div className="form-group"><label className="form-label">{t("settings.newPassword")}</label><input className="form-control" type="password" value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} placeholder="••••••••" /></div>
+          <div className="form-group"><label className="form-label">{t("settings.confirmation")}</label><input className="form-control" type="password" value={currentPasswordConfirm} onChange={event => setCurrentPasswordConfirm(event.target.value)} placeholder="••••••••" /></div>
         </div>
+        <button className="btn btn-ghost btn-sm" onClick={changeCurrentPassword}>{t("settings.resetPassword")}</button>
         <Toggle checked={settings.twoFactor} onChange={setSetting("twoFactor")} label={t("settings.twoFactor")} description={t("settings.twoFactorDesc")} />
       </SettingsSection>
 

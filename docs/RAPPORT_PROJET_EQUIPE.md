@@ -583,6 +583,8 @@ Principales améliorations réalisées :
 - centre de notifications réel pour tâches, audiences et documents récents ;
 - export PDF imprimable des dossiers juridiques ;
 - génération de factures PDF depuis Finance ;
+- chatbot sécurisé en lecture seule connecté aux données du cabinet ;
+- actions chatbot avec confirmation pour tâches, notes et statuts ;
 - corrections de compilation ;
 - intégration des documents, notes, audiences et finance avec backend.
 
@@ -658,6 +660,8 @@ Idées pour continuer le projet :
 ## 15. Conclusion synthétique
 
 L’application Aït El Hadj Avocat constitue une solution complète de gestion de cabinet juridique. Elle combine une interface professionnelle adaptée au domaine juridique avec un backend structuré en API REST. Le projet couvre les besoins essentiels d’un cabinet : clients, dossiers, tâches, documents, notes, audiences, finances et gestion des utilisateurs. La séparation des rôles avocat / assistant renforce la sécurité et rend l’application plus réaliste pour un contexte professionnel.
+
+
 
 
 

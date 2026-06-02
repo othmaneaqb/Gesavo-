@@ -1,8 +1,9 @@
 import { useI18n } from "@/i18n";
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
+import { getDocumentDownloadUrl } from "@/services/documents.service";
 
-export default function DocumentsPage({ docs, cases, clients, search, setSearch }) {
+export default function DocumentsPage({ docs, cases, clients, search, setSearch, onEdit, onDelete }) {
   const { t } = useI18n();
   const filtered = docs.filter(d =>
     d.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -10,6 +11,18 @@ export default function DocumentsPage({ docs, cases, clients, search, setSearch 
   );
   const getCase = id => cases.find(c => c.id === id);
   const getClient = id => clients.find(c => c.id === id);
+  const downloadDocument = (doc) => {
+    const url = getDocumentDownloadUrl(doc.fileUrl);
+    if (!url) return;
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = doc.name;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div>
@@ -37,7 +50,19 @@ export default function DocumentsPage({ docs, cases, clients, search, setSearch 
                   <td style={{ fontSize: 12 }}>{getClient(d.clientId)?.name}</td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{fmtDate(d.date)}</td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{d.size}</td>
-                  <td><button className="btn btn-ghost btn-sm" aria-label={t("ui.download")}>{I.download}</button></td>
+                  <td>
+                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => downloadDocument(d)} aria-label={t("ui.download")} title={t("ui.download")}>
+                        {I.download}
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => onEdit(d)} aria-label={t("ui.edit")} title={t("ui.edit")}>
+                        {I.edit}
+                      </button>
+                      <button className="btn btn-danger btn-sm" onClick={() => onDelete(d.id)} aria-label={t("ui.delete")} title={t("ui.delete")}>
+                        {I.del}
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

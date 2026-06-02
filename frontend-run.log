@@ -15,7 +15,152 @@ Note that the development build is not optimized.
 To create a production build, use npm run build.
 
 webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\i18n\translations.js
+Syntax error: Unexpected token, expected "," (702:2) (702:2)
+[1m[31mERROR[39m[22m in [1m./src/i18n/translations.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\pc\Documents\pip\law-firm-app\src\i18n\translations.js: Unexpected token, expected "," (702:2)
+
+[0m [90m 700 |[39m   record[33m:[39m [32m"Enregistrer"[39m[33m,[39m
+ [90m 701 |[39m   transactionPlaceholder[33m:[39m [32m"ex. Frais de dépôt au tribunal"[39m[33m,[39m
+[31m[1m>[22m[39m[90m 702 |[39m }}})[33m;[39m
+ [90m     |[39m   [31m[1m^[22m[39m
+ [90m 703 |[39m
+ [90m 704 |[39m [33mObject[39m[33m.[39massign(translations[33m.[39men[33m,[39m { forms[33m:[39m {
+ [90m 705 |[39m   addClient[33m:[39m [32m"Add New Client"[39m[33m,[39m[0m
+    at constructor (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:365:19)
+    at FlowParserMixin.raise (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:6599:19)
+    at FlowParserMixin.unexpected (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:6619:16)
+    at FlowParserMixin.expect (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:6899:12)
+    at FlowParserMixin.parseCallExpressionArguments (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11243:14)
+    at FlowParserMixin.parseCoverCallAndAsyncArrowHead (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11186:29)
+    at FlowParserMixin.parseSubscript (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11120:19)
+    at FlowParserMixin.parseSubscript (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:3650:18)
+    at FlowParserMixin.parseSubscripts (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11094:19)
+    at FlowParserMixin.parseSubscripts (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:3616:18)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11085:17)
+    at FlowParserMixin.parseUpdate (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11066:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:11046:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10899:61)
+    at FlowParserMixin.parseExprOps (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10904:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10881:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10831:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:3549:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10784:23)
+    at C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10780:39
+    at FlowParserMixin.allowInAnd (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:12421:16)
+    at FlowParserMixin.parseExpression (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:10780:17)
+    at FlowParserMixin.parseStatementContent (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:12895:23)
+    at FlowParserMixin.parseStatementLike (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:12767:17)
+    at FlowParserMixin.parseStatementLike (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:2918:24)
+    at FlowParserMixin.parseModuleItem (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:12744:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:13316:36)
+    at FlowParserMixin.parseBlockBody (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:13309:10)
+    at FlowParserMixin.parseProgram (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:12622:10)
+    at FlowParserMixin.parseTopLevel (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:12612:25)
+    at FlowParserMixin.parseTopLevel (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:3685:28)
+    at FlowParserMixin.parse (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:14488:25)
+    at parse (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\parser\lib\index.js:14522:38)
+    at parser (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\core\lib\parser\index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\core\lib\transformation\index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (C:\Users\pc\Documents\pip\law-firm-app\node_modules\@babel\core\lib\transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (C:\Users\pc\Documents\pip\law-firm-app\node_modules\gensync\index.js:261:32)
+    at C:\Users\pc\Documents\pip\law-firm-app\node_modules\gensync\index.js:273:13
+    at async.call.result.err.err (C:\Users\pc\Documents\pip\law-firm-app\node_modules\gensync\index.js:223:11)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\i18n\translations.js
+  Line 702:2:  Parsing [1m[31merror[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token, expected "," (702:2)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m
+Compiling...
 Compiled successfully!
 webpack compiled [1m[32msuccessfully[39m[22m
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Failed to compile.
+
+Attempted import error: 'DocRow' is not exported from '@/features/documents' (imported as 'DocRow').
+[1m[31mERROR[39m[22m in [1m./src/features/cases/pages/CaseDetail.jsx[39m[22m [1m[32m548:59-65[39m[22m
+[1mexport 'DocRow' (imported as 'DocRow') was [1m[31mnot found[39m[22m[1m in '@/features/documents' (possible exports: [1m[32mDocumentsPage, UploadDocModal[39m[22m[1m)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/features/clients/pages/ClientDetail.jsx[39m[22m [1m[32m335:63-69[39m[22m
+[1mexport 'DocRow' (imported as 'DocRow') was [1m[31mnot found[39m[22m[1m in '@/features/documents' (possible exports: [1m[32mDocumentsPage, UploadDocModal[39m[22m[1m)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/features/documents/index.js[39m[22m [1m[32m4:0-56[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/DocRow' in 'C:\Users\pc\Documents\pip\law-firm-app\src\features\documents'[39m[22m
+
+webpack compiled with [1m[31m3 errors[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
 Compiled successfully!
 webpack compiled [1m[32msuccessfully[39m[22m

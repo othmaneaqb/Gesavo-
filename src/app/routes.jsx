@@ -40,7 +40,7 @@ export const appRoutes = [
       setSearch,
       onSelect: setSelectedClient,
     }),
-    getDetailProps: ({ selectedClient, cases, docs, activities, expenses, canViewFinance, setSelectedClient, setModal, deleteClient }) => ({
+    getDetailProps: ({ selectedClient, cases, docs, activities, expenses, canViewFinance, setSelectedClient, setModal, deleteClient, deleteDocument }) => ({
       client: selectedClient,
       cases,
       docs,
@@ -50,6 +50,8 @@ export const appRoutes = [
       onBack: () => setSelectedClient(null),
       onEdit: () => setModal({ type: "edit-client", data: selectedClient }),
       onDelete: deleteClient,
+      onEditDocument: doc => setModal({ type: "edit-doc", data: doc }),
+      onDeleteDocument: deleteDocument,
     }),
   },
   {
@@ -67,7 +69,7 @@ export const appRoutes = [
       setSearch,
       onSelect: setSelectedCase,
     }),
-    getDetailProps: ({ selectedCase, clients, hearings, docs, tasks, setSelectedCase, setModal, deleteCase }) => ({
+    getDetailProps: ({ selectedCase, clients, hearings, docs, tasks, setSelectedCase, setModal, deleteCase, deleteDocument }) => ({
       caseItem: selectedCase,
       clients,
       hearings,
@@ -76,6 +78,8 @@ export const appRoutes = [
       onBack: () => setSelectedCase(null),
       onEdit: () => setModal({ type: "edit-case", data: selectedCase }),
       onDelete: deleteCase,
+      onEditDocument: doc => setModal({ type: "edit-doc", data: doc }),
+      onDeleteDocument: deleteDocument,
     }),
   },
   {
@@ -84,12 +88,14 @@ export const appRoutes = [
     icon: I.docs,
     component: DocumentsPage,
     action: { label: "Upload Document", icon: I.upload, modalType: "upload-doc" },
-    getProps: ({ docs, cases, clients, search, setSearch }) => ({
+    getProps: ({ docs, cases, clients, search, setSearch, setModal, deleteDocument }) => ({
       docs,
       cases,
       clients,
       search,
       setSearch,
+      onEdit: doc => setModal({ type: "edit-doc", data: doc }),
+      onDelete: deleteDocument,
     }),
   },
   {
@@ -98,7 +104,11 @@ export const appRoutes = [
     icon: I.calendar,
     component: CalendarPage,
     action: { label: "Schedule Hearing", icon: I.add, modalType: "add-hearing" },
-    getProps: ({ hearings, cases }) => ({ hearings, cases }),
+    getProps: ({ hearings, cases, setModal }) => ({
+      hearings,
+      cases,
+      onSelectHearing: hearing => setModal({ type: "edit-hearing", data: hearing }),
+    }),
   },
   {
     key: "finance",
@@ -115,11 +125,13 @@ export const appRoutes = [
     icon: I.tasks,
     component: TasksPage,
     action: { label: "New Task", icon: I.add, modalType: "add-task" },
-    getProps: ({ tasks, cases, moveTask, restoreTask }) => ({
+    getProps: ({ tasks, cases, moveTask, restoreTask, setModal, deleteTask }) => ({
       tasks,
       cases,
       onMove: moveTask,
       onRestore: restoreTask,
+      onEdit: task => setModal({ type: "edit-task", data: task }),
+      onDelete: deleteTask,
     }),
   },
   {
@@ -127,7 +139,14 @@ export const appRoutes = [
     label: "Notes",
     icon: I.notes,
     component: NotesPage,
-    getProps: ({ clients, cases, notes, addNote, updateNote }) => ({ clients, cases, notes, onCreate: addNote, onUpdate: updateNote }),
+    getProps: ({ clients, cases, notes, addNote, updateNote, deleteNote }) => ({
+      clients,
+      cases,
+      notes,
+      onCreate: addNote,
+      onUpdate: updateNote,
+      onDelete: deleteNote,
+    }),
   },
   {
     key: "settings",
@@ -136,11 +155,13 @@ export const appRoutes = [
     section: "system",
     roles: ["LAWYER"],
     component: SettingsPage,
-    getProps: ({ usersService, authUser, showToast, logout }) => ({
+    getProps: ({ usersService, authUser, showToast, logout, appSettings, updateAppSettings }) => ({
       usersService,
       currentUser: authUser,
       onToast: showToast,
       onLogout: logout,
+      appSettings,
+      onSettingsChange: updateAppSettings,
     }),
   },
 ];

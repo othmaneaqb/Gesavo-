@@ -4,7 +4,7 @@ import { DocRow } from "@/features/documents";
 import { I } from "@/shared/constants";
 import { fmtCurrency, fmtDate } from "@/shared/utils";
 
-export default function ClientDetail({ client, cases, docs, activities, expenses, canViewFinance, onBack, onEdit, onDelete }) {
+export default function ClientDetail({ client, cases, docs, activities, expenses, canViewFinance, onBack, onEdit, onDelete, onEditDocument, onDeleteDocument }) {
   const [tab, setTab] = useState("overview");
   const clientCases = cases.filter(c => c.clientId === client.id);
   const clientDocs = docs.filter(d => d.clientId === client.id);
@@ -63,7 +63,12 @@ export default function ClientDetail({ client, cases, docs, activities, expenses
               </div>
             )}
             {tab === "documents" && (
-              <div>{clientDocs.map(d => <DocRow key={d.id} doc={d} />)}</div>
+              <div>
+                {clientDocs.map(d => (
+                  <DocRow key={d.id} doc={d} onEdit={onEditDocument} onDelete={onDeleteDocument} />
+                ))}
+                {clientDocs.length === 0 && <div className="empty-state"><h3>No documents</h3></div>}
+              </div>
             )}
             {tab === "activity" && (
               <ul className="activity-list">{clientActs.map(a => (

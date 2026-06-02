@@ -18,3 +18,46 @@
     --warn: #B5710A;
     --sidebar-w: 240px;
   }
+
+  body.theme-green {
+    --gold: #27634A;
+    --gold-light: #3F8665;
+    --gold-pale: #E6F1EB;
+  }
+
+  body.theme-ink {
+    --gold: #0D0D0D;
+    --gold-light: #3A3F4A;
+    --gold-pale: #EFEDE8;
+  }
+
+  body.dark-mode {
+    --ink: #F6F0E6;
+    --paper: #14110D;
+    --cream: #201B14;
+    --slate: #D7CEC0;
+    --muted: #968B7E;
+    --border: #342C22;
+    --white: #1B1711;
+    --danger: #E06B5D;
+    --success: #68B38D;
+    --warn: #D49B43;
+  }
+
+  body.dark-mode.theme-gold {
+    --gold: #D4A853;
+    --gold-light: #E6C06F;
+    --gold-pale: #2B2417;
+  }
+
+  body.dark-mode.theme-green {
+    --gold: #68B38D;
+    --gold-light: #8AC9A8;
+    --gold-pale: #17271F;
+  }
+
+  body.dark-mode.theme-ink {
+    --gold: #E8DDC8;
+    --gold-light: #FFFFFF;
+    --gold-pale: #29241C;
+  }

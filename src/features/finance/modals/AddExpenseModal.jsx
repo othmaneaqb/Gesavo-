@@ -1,41 +1,92 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function AddExpenseModal({ onClose, clients, cases, onSave }) {
-  const [form, setForm] = useState({ description: "", amount: "", type: "invoice", clientId: "", caseId: "", date: new Date().toISOString().slice(0, 10), status: "outstanding" });
-  const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = async () => { if (!form.description || !form.amount) return; const saved = await onSave({ ...form, amount: parseFloat(form.amount), clientId: parseInt(form.clientId), caseId: form.caseId ? parseInt(form.caseId) : null }); if (saved !== false) onClose(); };
+  const { t } = useI18n();
+  const [form, setForm] = useState({
+    description: "",
+    amount: "",
+    type: "invoice",
+    clientId: "",
+    caseId: "",
+    date: new Date().toISOString().slice(0, 10),
+    status: "outstanding",
+  });
+
+  const set = key => event => setForm(prev => ({ ...prev, [key]: event.target.value }));
+
+  const save = async () => {
+    if (!form.description || !form.amount) return;
+    const saved = await onSave({
+      ...form,
+      amount: parseFloat(form.amount),
+      clientId: form.clientId ? parseInt(form.clientId) : null,
+      caseId: form.caseId ? parseInt(form.caseId) : null,
+    });
+    if (saved !== false) onClose();
+  };
 
   return (
-    <Modal title="Record Transaction" onClose={onClose} onSave={save} saveLabel="Record">
-      <div className="form-group"><label className="form-label">Description *</label><input className="form-control" value={form.description} onChange={set("description")} placeholder="e.g. Court filing fees" /></div>
+    <Modal title={t("forms.recordTransaction")} onClose={onClose} onSave={save} saveLabel={t("forms.record")}>
+      <div className="form-group">
+        <label className="form-label">{t("invoice.description")} *</label>
+        <input
+          className="form-control"
+          value={form.description}
+          onChange={set("description")}
+          placeholder={t("forms.transactionPlaceholder")}
+        />
+      </div>
+
       <div className="form-row">
-        <div className="form-group"><label className="form-label">Amount *</label><input type="number" className="form-control" value={form.amount} onChange={set("amount")} placeholder="0.00" /></div>
-        <div className="form-group"><label className="form-label">Type</label>
+        <div className="form-group">
+          <label className="form-label">{t("ui.amount")} *</label>
+          <input type="number" className="form-control" value={form.amount} onChange={set("amount")} placeholder="0.00" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">{t("ui.type")}</label>
           <select className="form-control" value={form.type} onChange={set("type")}>
-            {["invoice", "payment", "expense"].map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+            {["invoice", "payment", "expense"].map(type => (
+              <option key={type} value={type}>{t(`status.${type}`)}</option>
+            ))}
           </select>
         </div>
       </div>
+
       <div className="form-row">
-        <div className="form-group"><label className="form-label">Client</label>
+        <div className="form-group">
+          <label className="form-label">{t("ui.client")}</label>
           <select className="form-control" value={form.clientId} onChange={set("clientId")}>
-            <option value="">— Client —</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="">— {t("ui.client")} —</option>
+            {clients.map(client => (
+              <option key={client.id} value={client.id}>{client.name}</option>
+            ))}
           </select>
         </div>
-        <div className="form-group"><label className="form-label">Case</label>
+
+        <div className="form-group">
+          <label className="form-label">{t("ui.case")}</label>
           <select className="form-control" value={form.caseId} onChange={set("caseId")}>
-            <option value="">— Case —</option>
-            {cases.map(c => <option key={c.id} value={c.id}>{c.caseNumber}</option>)}
+            <option value="">— {t("ui.case")} —</option>
+            {cases.map(caseItem => (
+              <option key={caseItem.id} value={caseItem.id}>{caseItem.caseNumber}</option>
+            ))}
           </select>
         </div>
       </div>
+
       <div className="form-row">
-        <div className="form-group"><label className="form-label">Date</label><input type="date" className="form-control" value={form.date} onChange={set("date")} /></div>
-        <div className="form-group"><label className="form-label">Status</label>
+        <div className="form-group">
+          <label className="form-label">{t("ui.date")}</label>
+          <input type="date" className="form-control" value={form.date} onChange={set("date")} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">{t("ui.status")}</label>
           <select className="form-control" value={form.status} onChange={set("status")}>
-            {["outstanding", "paid"].map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+            {["outstanding", "paid"].map(status => (
+              <option key={status} value={status}>{t(`status.${status}`)}</option>
+            ))}
           </select>
         </div>
       </div>

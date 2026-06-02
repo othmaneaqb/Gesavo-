@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useI18n } from "@/i18n";
 import { fmtDate, priorityColor } from "@/shared/utils";
 
-export default function TasksPage({ tasks, cases, onMove, onRestore }) {
+export default function TasksPage({ tasks, cases, onMove, onRestore, onEdit, onDelete }) {
   const { t } = useI18n();
   const [view, setView] = useState("active");
   const [caseFilter, setCaseFilter] = useState("all");
@@ -44,7 +44,13 @@ export default function TasksPage({ tasks, cases, onMove, onRestore }) {
                   const caseItem = cases.find(item => item.id === task.caseId);
                   return (
                     <div key={task.id} className="task-card">
-                      <div className="task-title">{task.title}</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
+                        <div className="task-title">{task.title}</div>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button className="btn btn-ghost btn-sm" style={{ fontSize: 10, padding: "3px 7px" }} onClick={() => onEdit(task)}>Edit</button>
+                          <button className="btn btn-danger btn-sm" style={{ fontSize: 10, padding: "3px 7px" }} onClick={() => onDelete(task.id)}>Delete</button>
+                        </div>
+                      </div>
                       <div className="task-meta">
                         <span style={{ color: priorityColor(task.priority), fontWeight: 500 }}>● {t(`status.${task.priority}`, task.priority)}</span>
                         {task.assignee && <span>· {task.assignee}</span>}
@@ -75,7 +81,10 @@ export default function TasksPage({ tasks, cases, onMove, onRestore }) {
                     {caseItem?.caseNumber || t("ui.noLinkedCase")} · {t("ui.archived")} {fmtDate(task.archivedAt)}
                   </div>
                 </div>
-                <button className="btn btn-ghost btn-sm" onClick={() => onRestore(task.id)}>{t("ui.restore")}</button>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => onRestore(task.id)}>{t("ui.restore")}</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => onDelete(task.id)}>Delete</button>
+                </div>
               </div>
             );
           })}

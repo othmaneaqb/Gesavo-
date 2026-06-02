@@ -23,6 +23,7 @@ import { usersService } from "@/services/users.service";
 import AppProviders from "./providers";
 import { I18nProvider } from "@/i18n";
 import { appRoutes } from "./routes";
+import { applyAppSettings, loadAppSettings, saveAppSettings } from "@/features/settings/settingsStorage";
 // APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [page, setPage] = useState("dashboard");
@@ -44,6 +45,7 @@ export default function App() {
     user: null,
     error: null,
   });
+  const [appSettings, setAppSettings] = useState(loadAppSettings);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -51,6 +53,15 @@ export default function App() {
   }, []);
 
   const closeModal = () => setModal(null);
+
+  useEffect(() => {
+    applyAppSettings(appSettings);
+  }, [appSettings]);
+
+  const updateAppSettings = useCallback((nextSettings, { persist = false } = {}) => {
+    setAppSettings(nextSettings);
+    if (persist) saveAppSettings(nextSettings);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -267,6 +278,33 @@ export default function App() {
     }
   };
 
+  const updateTask = async (id, data) => {
+    try {
+      const updated = await tasksService.update(id, data);
+      setTasks(prev => prev.map(task => task.id === id ? updated : task));
+      showToast("Task updated.");
+      return true;
+    } catch {
+      showToast("Could not update task.");
+      return false;
+    }
+  };
+
+  const deleteTask = async (id) => {
+    const confirmed = window.confirm("Delete this task?");
+    if (!confirmed) return false;
+
+    try {
+      await tasksService.delete(id);
+      setTasks(prev => prev.filter(task => task.id !== id));
+      showToast("Task deleted.");
+      return true;
+    } catch {
+      showToast("Could not delete task.");
+      return false;
+    }
+  };
+
   const restoreTask = async (id) => {
     try {
       const restored = await tasksService.restore(id);
@@ -289,6 +327,33 @@ export default function App() {
     }
   };
 
+  const updateHearing = async (id, data) => {
+    try {
+      const hearing = await hearingsService.update(id, data);
+      setHearings(prev => prev.map(item => item.id === id ? hearing : item));
+      showToast("Hearing updated.");
+      return true;
+    } catch {
+      showToast("Could not update hearing.");
+      return false;
+    }
+  };
+
+  const deleteHearing = async (id) => {
+    const confirmed = window.confirm("Delete this hearing?");
+    if (!confirmed) return false;
+
+    try {
+      await hearingsService.delete(id);
+      setHearings(prev => prev.filter(hearing => hearing.id !== id));
+      showToast("Hearing deleted.");
+      return true;
+    } catch {
+      showToast("Could not delete hearing.");
+      return false;
+    }
+  };
+
   const addDocument = async (data) => {
     try {
       const document = await documentsService.create(data);
@@ -297,6 +362,33 @@ export default function App() {
       return true;
     } catch {
       showToast("Could not upload document.");
+      return false;
+    }
+  };
+
+  const updateDocument = async (id, data) => {
+    try {
+      const document = await documentsService.update(id, data);
+      setDocs(prev => prev.map(item => item.id === id ? document : item));
+      showToast("Document updated.");
+      return true;
+    } catch {
+      showToast("Could not update document.");
+      return false;
+    }
+  };
+
+  const deleteDocument = async (id) => {
+    const confirmed = window.confirm("Delete this document?");
+    if (!confirmed) return false;
+
+    try {
+      await documentsService.delete(id);
+      setDocs(prev => prev.filter(doc => doc.id !== id));
+      showToast("Document deleted.");
+      return true;
+    } catch {
+      showToast("Could not delete document.");
       return false;
     }
   };
@@ -361,7 +453,7 @@ export default function App() {
       return Number.isNaN(date.getTime()) ? null : date;
     };
 
-    const taskAlerts = tasks
+    const taskAlerts = appSettings.taskAlerts ? tasks
       .filter(task => !task.isArchived && task.status !== "done" && task.deadline)
       .map(task => {
         const deadline = toDate(task.deadline);
@@ -379,9 +471,9 @@ export default function App() {
           page: "tasks",
         };
       })
-      .filter(Boolean);
+      .filter(Boolean) : [];
 
-    const hearingAlerts = hearings
+    const hearingAlerts = appSettings.hearingAlerts ? hearings
       .filter(hearing => hearing.status === "upcoming")
       .map(hearing => {
         const hearingDate = toDate(hearing.date);
@@ -396,9 +488,9 @@ export default function App() {
           page: "calendar",
         };
       })
-      .filter(Boolean);
+      .filter(Boolean) : [];
 
-    const documentAlerts = docs
+    const documentAlerts = appSettings.documentAlerts ? docs
       .filter(doc => {
         const uploadedAt = toDate(doc.date);
         if (!uploadedAt) return false;
@@ -413,17 +505,32 @@ export default function App() {
         message: doc.name,
         date: doc.date,
         page: "documents",
-      }));
+      })) : [];
 
     return [...taskAlerts, ...hearingAlerts, ...documentAlerts]
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, 12);
-  }, [authState.user, tasks, hearings, docs, cases]);
+  }, [authState.user, tasks, hearings, docs, cases, appSettings.taskAlerts, appSettings.hearingAlerts, appSettings.documentAlerts]);
 
   const updateNote = async (id, data) => {
     const note = await notesService.update(id, data);
     setNotes(prev => prev.map(item => item.id === id ? note : item));
     return note;
+  };
+
+  const deleteNote = async (id) => {
+    const confirmed = window.confirm("Delete this note?");
+    if (!confirmed) return false;
+
+    try {
+      await notesService.delete(id);
+      setNotes(prev => prev.filter(note => note.id !== id));
+      showToast("Note deleted.");
+      return true;
+    } catch {
+      showToast("Could not delete note.");
+      return false;
+    }
   };
 
   const routeContext = {
@@ -444,8 +551,15 @@ export default function App() {
     setSelectedCase,
     moveTask,
     restoreTask,
+    updateHearing,
+    deleteHearing,
+    updateTask,
+    deleteTask,
+    updateDocument,
+    deleteDocument,
     addNote,
     updateNote,
+    deleteNote,
     setModal,
     deleteClient,
     deleteCase,
@@ -455,6 +569,8 @@ export default function App() {
     showToast,
     logout,
     notifications,
+    appSettings,
+    updateAppSettings,
   };
   const availableRoutes = appRoutes.filter(route => !route.roles || route.roles.includes(authState.user?.role));
   const activeRoute = availableRoutes.find(route => route.key === page) || availableRoutes[0];
@@ -515,8 +631,36 @@ export default function App() {
               />
             )}
             {modal?.type === "add-task" && <AddTaskModal onClose={closeModal} onSave={addTask} cases={cases} />}
+            {modal?.type === "edit-task" && (
+              <AddTaskModal
+                onClose={closeModal}
+                onSave={(data) => updateTask(modal.data.id, data)}
+                cases={cases}
+                initialValues={modal.data}
+                title="Edit Task"
+                saveLabel="Save Changes"
+              />
+            )}
             {modal?.type === "add-hearing" && <AddHearingModal onClose={closeModal} onSave={addHearing} cases={cases} />}
+            {modal?.type === "edit-hearing" && (
+              <AddHearingModal
+                onClose={closeModal}
+                onSave={(data) => updateHearing(modal.data.id, data)}
+                onDelete={deleteHearing}
+                cases={cases}
+                initialValues={modal.data}
+              />
+            )}
             {modal?.type === "upload-doc" && <UploadDocModal onClose={closeModal} cases={cases} clients={clients} onSave={addDocument} />}
+            {modal?.type === "edit-doc" && (
+              <UploadDocModal
+                onClose={closeModal}
+                cases={cases}
+                clients={clients}
+                onSave={(data) => updateDocument(modal.data.id, data)}
+                initialValues={modal.data}
+              />
+            )}
             {modal?.type === "add-expense" && <AddExpenseModal onClose={closeModal} clients={clients} cases={cases} onSave={addExpense} />}
           </>
         )}
