@@ -5,12 +5,10 @@ import { useI18n } from "@/i18n";
 import logo from "@/assets/image.png";
 
 export default function DashboardLayout({
-  page,
-  setPage,
-  selectedClient,
-  selectedCase,
-  setSelectedClient,
-  setSelectedCase,
+  activeRoute,
+  isDetail,
+  detailTitle,
+  onNavigate,
   setModal,
   navItems,
   toast,
@@ -22,13 +20,11 @@ export default function DashboardLayout({
 }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { language, languages, setLanguage, t } = useI18n();
-  const activeRoute = navItems.find(n => n.key === page);
   const activeAction = activeRoute?.action;
-  const showAction = activeAction && (
-    !activeAction.hideWhenDetail ||
-    (activeAction.hideWhenDetail === "client" && !selectedClient) ||
-    (activeAction.hideWhenDetail === "case" && !selectedCase)
+  const actionAllowed = activeAction && (
+    !activeAction.roles || activeAction.roles.includes(user?.role)
   );
+  const showAction = actionAllowed && (!activeAction.hideWhenDetail || !isDetail);
   const unreadCount = notifications.length;
   const groupedNotifications = useMemo(() => ({
     urgent: notifications.filter(item => item.type === "danger" || item.type === "warning"),
@@ -37,9 +33,8 @@ export default function DashboardLayout({
 
   const openNotification = notification => {
     if (notification.page) {
-      setPage(notification.page);
-      setSelectedClient(null);
-      setSelectedCase(null);
+      const destination = navItems.find(item => item.key === notification.page);
+      if (destination) onNavigate(destination.path);
     }
     setNotificationsOpen(false);
   };
@@ -66,14 +61,14 @@ export default function DashboardLayout({
         <nav className="sidebar-nav">
           <div className="nav-section-label">{t("common.navigation")}</div>
           {navItems.filter(item => item.section !== "system").map(n => (
-            <div key={n.key} className={`nav-item ${page === n.key ? "active" : ""}`} onClick={() => { setPage(n.key); setSelectedClient(null); setSelectedCase(null); }}>
+            <div key={n.key} className={`nav-item ${activeRoute?.key === n.key ? "active" : ""}`} onClick={() => onNavigate(n.path)}>
               <span className="icon">{n.icon}</span>
               <span>{t(`nav.${n.key}`, n.label)}</span>
             </div>
           ))}
           <div className="nav-section-label" style={{ marginTop: 8 }}>{t("common.system")}</div>
           {navItems.filter(item => item.section === "system").map(n => (
-            <div key={n.key} className={`nav-item ${page === n.key ? "active" : ""}`} onClick={() => { setPage(n.key); setSelectedClient(null); setSelectedCase(null); }}>
+            <div key={n.key} className={`nav-item ${activeRoute?.key === n.key ? "active" : ""}`} onClick={() => onNavigate(n.path)}>
               <span className="icon">{n.icon}</span>
               <span>{t(`nav.${n.key}`, n.label)}</span>
             </div>
@@ -99,9 +94,9 @@ export default function DashboardLayout({
 
       {/* MAIN */}
       <main className="main">
-        <header className="topbar">
+        <header className={`topbar ${activeRoute?.key === "dashboard" ? "topbar-dashboard" : ""}`}>
           <h2 className="page-title">
-            {selectedClient ? selectedClient.name : selectedCase ? selectedCase.title : t(`nav.${activeRoute?.key}`, activeRoute?.label)}
+            {detailTitle || t(`nav.${activeRoute?.key}`, activeRoute?.label)}
           </h2>
           <div className="topbar-actions">
             <select className="language-select" value={language} onChange={event => setLanguage(event.target.value)} aria-label="Language">

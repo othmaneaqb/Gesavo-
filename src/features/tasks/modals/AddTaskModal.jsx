@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui";
 
-export default function AddTaskModal({ onClose, onSave, cases }) {
-  const [form, setForm] = useState({ title: "", assignee: "", priority: "normal", deadline: "", caseId: "" });
+export default function AddTaskModal({ onClose, onSave, cases, team }) {
+  const [form, setForm] = useState({ title: "", assigneeId: "", priority: "normal", deadline: "", caseId: "" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = async () => { if (!form.title) return; const saved = await onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null }); if (saved !== false) onClose(); };
+  const save = async () => { if (!form.title) return; const saved = await onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null, assigneeId: form.assigneeId ? parseInt(form.assigneeId) : null }); if (saved !== false) onClose(); };
 
   return (
     <Modal title="Create Task" onClose={onClose} onSave={save} saveLabel="Create Task">
       <div className="form-group"><label className="form-label">Task Title *</label><input className="form-control" value={form.title} onChange={set("title")} placeholder="Task description" /></div>
       <div className="form-row">
         <div className="form-group"><label className="form-label">Assignee</label>
-          <select className="form-control" value={form.assignee} onChange={set("assignee")}>
+          <select className="form-control" value={form.assigneeId} onChange={set("assigneeId")}>
             <option value="">— Assign to —</option>
-            {["Lead Attorney", "Associate", "Secretary", "Paralegal"].map(a => <option key={a} value={a}>{a}</option>)}
+            {team.map(member => <option key={member.id} value={member.id}>{member.display_name} ({member.role})</option>)}
           </select>
         </div>
         <div className="form-group"><label className="form-label">Priority</label>

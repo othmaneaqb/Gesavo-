@@ -1,9 +1,8 @@
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
-import { useI18n } from "@/i18n";
+import DocumentDownloadButton from "./DocumentDownloadButton";
 
 export default function DocRow({ doc }) {
-  const { t } = useI18n();
   const icons = { pdf: I.pdf, docx: I.docx, jpg: I.img, png: I.img };
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #F0EDE7" }}>
@@ -12,7 +11,7 @@ export default function DocRow({ doc }) {
         <div style={{ fontWeight: 500, fontSize: 13.5 }}>{doc.name}</div>
         <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{doc.desc} · {doc.size} · {fmtDate(doc.date)}</div>
       </div>
-      <button className="btn btn-ghost btn-sm">{I.download} {t("ui.download")}</button>
+      <DocumentDownloadButton document={doc} showLabel />
     </div>
   );
 }

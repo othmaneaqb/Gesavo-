@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useI18n } from "@/i18n";
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
+import "../notes.css";
 
 export default function NotesPage({ clients, notes, onCreate, onUpdate }) {
   const { t } = useI18n();
@@ -22,28 +23,28 @@ export default function NotesPage({ clients, notes, onCreate, onUpdate }) {
   };
 
   return (
-    <div>
+    <div className="notes-page">
       {!editing ? (
-        <div>
-          <button className="btn btn-primary mb-6" onClick={() => setEditing("new")}>{I.add} {t("ui.newNote")}</button>
-          <div className="grid-3">
+        <div className="notes-list-view">
+          <button className="btn btn-primary notes-new-button" onClick={() => setEditing("new")}>{I.add} {t("ui.newNote")}</button>
+          <div className="grid-3 notes-grid">
             {notes.map(note => {
               const client = getClient(note.clientId);
               return (
-                <div key={note.id} className="card" style={{ cursor: "pointer" }} onClick={() => setEditing(note)}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                    <h4 style={{ fontFamily: "var(--font-heading)", fontSize: 16, lineHeight: 1.3 }}>{note.title}</h4>
+                <div key={note.id} className="card notes-card" onClick={() => setEditing(note)}>
+                  <div className="notes-card-header">
+                    <h4>{note.title}</h4>
                   </div>
-                  {client && <div style={{ fontSize: 11, color: "var(--gold)", marginBottom: 8 }}>↳ {client.name}</div>}
-                  <p style={{ fontSize: 13, color: "var(--slate)", lineHeight: 1.6 }}>{note.body.slice(0, 120)}{note.body.length > 120 ? "..." : ""}</p>
-                  <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 12 }}>{fmtDate(note.date)}</div>
+                  {client && <div className="notes-client">↳ {client.name}</div>}
+                  <p className="notes-preview">{note.body.slice(0, 120)}{note.body.length > 120 ? "..." : ""}</p>
+                  <div className="notes-date">{fmtDate(note.date)}</div>
                 </div>
               );
             })}
           </div>
         </div>
       ) : (
-        <div style={{ maxWidth: 640 }}>
+        <div className="notes-editor">
           <button className="btn btn-ghost btn-sm mb-4" onClick={() => setEditing(null)}>{I.back} {t("ui.back")}</button>
           <div className="card">
             <div className="form-group">

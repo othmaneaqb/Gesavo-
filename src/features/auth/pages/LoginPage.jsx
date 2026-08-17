@@ -1,7 +1,7 @@
 import { useState } from "react";
-import logo from "../../../assets/logo-ait-el-hadj-cropped.png";
-import { authService } from "../../../services/auth.service";
-import { useI18n } from "../../../i18n";
+import logo from "@/assets/logo-ait-el-hadj-cropped.png";
+import { authService } from "../services/authService";
+import { useI18n } from "@/i18n";
 
 function MailIcon() {
   return (
@@ -21,11 +21,12 @@ function LockIcon() {
   );
 }
 
-function EyeIcon() {
+function EyeIcon({ visible }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M3.5 12s3-5 8.5-5 8.5 5 8.5 5-3 5-8.5 5-8.5-5-8.5-5Z" />
       <circle cx="12" cy="12" r="2.5" />
+      {visible && <path d="m4 4 16 16" />}
     </svg>
   );
 }
@@ -44,7 +45,8 @@ function ScaleIcon() {
 
 export default function LoginPage({ onLogin, error }) {
   const { language, languages, setLanguage, t } = useI18n();
-  const [form, setForm] = useState({ identifier: "", password: "", remember: true });
+  const [form, setForm] = useState({ identifier: "", password: "", remember: false });
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fieldError, setFieldError] = useState("");
   const [recoveryOpen, setRecoveryOpen] = useState(false);
@@ -68,7 +70,7 @@ export default function LoginPage({ onLogin, error }) {
     setFieldError("");
     setSubmitting(true);
     try {
-      await onLogin(form.identifier, form.password);
+      await onLogin(form.identifier, form.password, form.remember);
     } finally {
       setSubmitting(false);
     }
@@ -130,14 +132,22 @@ export default function LoginPage({ onLogin, error }) {
               <div className="legal-input-wrap">
                 <span><LockIcon /></span>
                 <input
-                  className="form-control"
-                  type="password"
+                  className="form-control has-visibility"
+                  type={passwordVisible ? "text" : "password"}
                   value={form.password}
                   onChange={set("password")}
                   placeholder={t("auth.passwordPlaceholder")}
                   autoComplete="current-password"
                 />
-                <em><EyeIcon /></em>
+                <button
+                  type="button"
+                  className="password-visibility"
+                  aria-label={t(passwordVisible ? "auth.hidePassword" : "auth.showPassword")}
+                  aria-pressed={passwordVisible}
+                  onClick={() => setPasswordVisible(value => !value)}
+                >
+                  <EyeIcon visible={passwordVisible} />
+                </button>
               </div>
             </div>
 

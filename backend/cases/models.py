@@ -20,6 +20,13 @@ class Case(models.Model):
     # Relationships
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='cases')
     assigned_lawyers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='assigned_cases')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='created_cases',
+        blank=True,
+        null=True,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

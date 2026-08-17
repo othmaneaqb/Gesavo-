@@ -25,6 +25,7 @@ backend/venv/
 backend/db.sqlite3
 backend/db.sqlite3-*
 backend/media/
+backend/private_media/
 *.sqlite3
 
 # Environment variables and secrets

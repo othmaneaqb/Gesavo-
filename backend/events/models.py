@@ -14,6 +14,13 @@ class Event(models.Model):
     # Relationships
     case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='events', blank=True, null=True)
     attendees = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='events', blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='created_events',
+        blank=True,
+        null=True,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

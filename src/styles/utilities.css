@@ -22,6 +22,7 @@
     .kanban { grid-template-columns: 1fr; }
     .form-row { grid-template-columns: 1fr; }
     .info-grid { grid-template-columns: 1fr; }
+    .filter-field-search { flex-basis: 100%; }
   }
 
   @media (max-width: 680px) {
@@ -29,4 +30,12 @@
     .sidebar-logo h1, .nav-item span, .sidebar-logo span, .user-info, .nav-section-label { display: none; }
     .nav-item { justify-content: center; padding: 12px; }
     .content { padding: 16px; }
+    .topbar { padding: 0 16px; }
+    .filter-panel { padding: 12px; }
+    .filter-row { align-items: stretch; }
+    .filter-field,
+    .filter-field-search,
+    .filter-field-wide,
+    .filter-field-view { flex: 1 1 100%; max-width: none; }
+    .filter-segmented .btn { flex: 1; justify-content: center; }
   }

@@ -1,20 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
 
   :root {
     --font-heading: 'Playfair Display', serif;
     --font-body: 'Source Sans 3', sans-serif;
     --ink: #0D0D0D;
-    --paper: #F7F4EE;
-    --cream: #EDE9E0;
+    --paper: #F8F5EE;
+    --cream: #EFE9DF;
     --gold: #B8913A;
     --gold-light: #D4A853;
     --gold-pale: #F5EDD6;
-    --slate: #3A3F4A;
-    --muted: #8A8F9A;
-    --border: #D8D3C8;
+    --gold-wash: #FBF7EC;
+    --gold-border: rgba(184,145,58,0.42);
+    --gold-active: rgba(184,145,58,0.09);
+    --sidebar-bg: #151515;
+    --sidebar-surface: #1E1E1E;
+    --sidebar-divider: #2A2A2A;
+    --sidebar-text: #F1EDE5;
+    --sidebar-muted: #8F8B84;
+    --sidebar-icon: #B7B1A6;
+    --sidebar-active-text: #E8C56A;
+    --slate: #43464D;
+    --muted: #777B83;
+    --border: #DCD6CB;
+    --border-soft: #EAE5DC;
     --white: #FFFFFF;
+    --surface: #FFFEFB;
     --danger: #C0392B;
     --success: #27634A;
     --warn: #B5710A;
     --sidebar-w: 240px;
+    --radius-sm: 6px;
+    --radius-md: 7px;
+    --radius-lg: 8px;
   }

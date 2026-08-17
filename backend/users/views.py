@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from rest_framework import generics, permissions, viewsets, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (
@@ -15,14 +15,23 @@ from .serializers import (
     PasswordResetSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
+    LogoutSerializer,
+    TeamMemberSerializer,
 )
 from .models import CustomUser
-from .permissions import IsAdminOrLawyer
+from .permissions import IsAdministrator
+from core.access import accessible_users
+from core.permissions import CabinetObjectPermission
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
-    permission_classes = (IsAdminOrLawyer,)
+    permission_classes = (IsAdministrator,)
     serializer_class = RegisterSerializer
+
+    def perform_create(self, serializer):
+        if not self.request.user.cabinet_id:
+            raise ValidationError({'cabinet': 'Administrator must belong to a cabinet.'})
+        serializer.save(cabinet=self.request.user.cabinet)
 
 class UserProfileView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -30,6 +39,28 @@ class UserProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+
+class TeamMemberListView(generics.ListAPIView):
+    serializer_class = TeamMemberSerializer
+    permission_classes = (CabinetObjectPermission,)
+
+    def get_queryset(self):
+        return accessible_users(self.request.user).filter(
+            is_active=True,
+            is_superuser=False,
+        ).order_by('first_name', 'last_name', 'username')
+
+
+class LogoutView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PasswordResetRequestView(APIView):
@@ -75,16 +106,7 @@ class PasswordResetConfirmView(APIView):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            uid = force_str(urlsafe_base64_decode(serializer.validated_data['uid']))
-            user = CustomUser.objects.get(pk=uid, is_active=True)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            return Response({'detail': 'Invalid or expired reset link.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        token = serializer.validated_data['token']
-        if not default_token_generator.check_token(user, token):
-            return Response({'detail': 'Invalid or expired reset link.'}, status=status.HTTP_400_BAD_REQUEST)
-
+        user = serializer.validated_data['user']
         user.set_password(serializer.validated_data['password'])
         user.save(update_fields=['password'])
         return Response({'detail': 'Password has been reset successfully.'}, status=status.HTTP_200_OK)
@@ -93,12 +115,31 @@ class PasswordResetConfirmView(APIView):
 class ManagedUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('username')
     serializer_class = ManagedUserSerializer
-    permission_classes = [IsAdminOrLawyer]
+    permission_classes = [IsAdministrator]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(
+            cabinet_id=self.request.user.cabinet_id,
+            is_superuser=False,
+        )
+
+    def perform_create(self, serializer):
+        if not self.request.user.cabinet_id:
+            raise ValidationError({'cabinet': 'Administrator must belong to a cabinet.'})
+        serializer.save(cabinet=self.request.user.cabinet)
+
+    def perform_destroy(self, instance):
+        if instance.pk == self.request.user.pk:
+            raise ValidationError({'detail': 'You cannot delete your own account.'})
+        instance.delete()
 
     @action(detail=True, methods=['post'], url_path='reset-password')
     def reset_password(self, request, pk=None):
         user = self.get_object()
-        serializer = PasswordResetSerializer(data=request.data)
+        serializer = PasswordResetSerializer(data=request.data, context={'user': user})
         serializer.is_valid(raise_exception=True)
         user.set_password(serializer.validated_data['password'])
         user.save(update_fields=['password'])

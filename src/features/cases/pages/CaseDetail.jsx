@@ -3,7 +3,7 @@ import { DocRow } from "@/features/documents";
 import { I } from "@/shared/constants";
 import { fmtDate } from "@/shared/utils";
 
-export default function CaseDetail({ caseItem, clients, hearings, docs, tasks, onBack, onEdit, onDelete }) {
+export default function CaseDetail({ caseItem, clients, hearings, docs, tasks, canManageLegal, onBack, onEdit, onDelete }) {
   const client = clients.find(c => c.id === caseItem.clientId);
   const caseHearings = hearings.filter(h => h.caseId === caseItem.id);
   const caseDocs = docs.filter(d => d.caseId === caseItem.id);
@@ -20,8 +20,8 @@ export default function CaseDetail({ caseItem, clients, hearings, docs, tasks, o
         <button className="btn btn-ghost btn-sm" onClick={onBack}>{I.back} Back to Cases</button>
         <div className="flex gap-2">
           <button className="btn btn-primary btn-sm" onClick={exportPdf}>{I.pdf} Export PDF</button>
-          <button className="btn btn-ghost btn-sm" onClick={onEdit}>Edit Case</button>
-          <button className="btn btn-danger btn-sm" onClick={() => onDelete(caseItem.id)}>Delete Case</button>
+          {canManageLegal && <button className="btn btn-ghost btn-sm" onClick={onEdit}>Edit Case</button>}
+          {canManageLegal && <button className="btn btn-danger btn-sm" onClick={() => onDelete(caseItem.id)}>Delete Case</button>}
         </div>
       </div>
 

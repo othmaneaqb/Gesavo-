@@ -20,6 +20,13 @@ class Task(models.Model):
     # Relationships
     case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='tasks', blank=True, null=True)
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='tasks', blank=True, null=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='created_tasks',
+        blank=True,
+        null=True,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

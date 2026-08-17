@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import { StatCard, StatusBadge } from "@/components/ui";
 import { fmtCurrency, fmtDate, priorityColor } from "@/shared/utils";
 import { useI18n } from "@/i18n";
+import "../dashboard.css";
 
 export default function Dashboard({ clients, cases, tasks, hearings, expenses, activities, canViewFinance }) {
   const { language, t } = useI18n();
@@ -10,7 +12,7 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
   const upcomingHearings = hearings.filter(hearing => hearing.status === "upcoming").length;
 
   return (
-    <div>
+    <div className={`dashboard-page ${canViewFinance ? "" : "dashboard-page-without-finance"}`}>
       <div className="stats-grid">
         <StatCard label={t("ui.activeClients")} value={clients.filter(client => client.status === "active").length} sub={t("ui.currentActiveClients")} />
         <StatCard label={t("ui.openCases")} value={activeCases} sub={`${cases.filter(item => item.status === "urgent").length} ${t("ui.urgent")}`} />
@@ -18,31 +20,32 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
         {canViewFinance && <StatCard label={t("ui.outstandingFees")} value={fmtCurrency(totalOwed)} sub={t("ui.totalReceivable")} isAmount />}
       </div>
 
-      <div className="grid-2" style={{ marginBottom: 20 }}>
-        <div className="card">
+      <div className={`dashboard-panel-grid ${canViewFinance ? "" : "dashboard-panel-grid-without-finance"}`}>
+        <div className="card dashboard-section-card dashboard-upcoming">
           <div className="card-header">
             <h3 className="card-title">{t("ui.upcomingHearings")}</h3>
             <span className="text-muted">{upcomingHearings} {t("ui.scheduled")}</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="dashboard-hearing-list">
             {hearings.filter(item => item.status === "upcoming").slice(0, 4).map(hearing => (
-              <div key={hearing.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--paper)", borderRadius: 8 }}>
-                <div style={{ background: "var(--gold-pale)", border: "1px solid var(--gold)", borderRadius: 8, padding: "6px 10px", textAlign: "center", minWidth: 46 }}>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: "var(--gold)", fontFamily: "var(--font-heading)" }}>{new Date(hearing.date).getDate()}</div>
-                  <div style={{ fontSize: 9, textTransform: "uppercase", color: "var(--muted)", letterSpacing: "0.1em" }}>{new Date(hearing.date).toLocaleString(language, { month: "short" })}</div>
+              <div key={hearing.id} className="dashboard-hearing-row">
+                <div className="dashboard-hearing-date">
+                  <div className="dashboard-hearing-day">{new Date(hearing.date).getDate()}</div>
+                  <div className="dashboard-hearing-month">{new Date(hearing.date).toLocaleString(language, { month: "short" })}</div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13.5, fontWeight: 500 }}>{hearing.title}</div>
-                  <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>{hearing.court} · {hearing.time}</div>
+                <div className="dashboard-hearing-copy">
+                  <div className="dashboard-hearing-title">{hearing.title}</div>
+                  <div className="dashboard-hearing-meta">{hearing.court} · {hearing.time}</div>
                 </div>
                 <StatusBadge status="upcoming" />
               </div>
             ))}
             {upcomingHearings === 0 && <div className="empty-state"><h3>{t("ui.noUpcomingHearings")}</h3></div>}
           </div>
+          <Link className="dashboard-card-link" to="/calendar">{t("nav.calendar")}</Link>
         </div>
 
-        <div className="card">
+        <div className="card dashboard-section-card dashboard-activity">
           <div className="card-header">
             <h3 className="card-title">{t("ui.recentActivity")}</h3>
           </div>
@@ -59,43 +62,48 @@ export default function Dashboard({ clients, cases, tasks, hearings, expenses, a
           </ul>
           {activities.length === 0 && <div className="empty-state"><h3>{t("ui.noRecentActivity")}</h3></div>}
         </div>
-      </div>
 
-      <div className={canViewFinance ? "grid-2" : ""}>
-        {canViewFinance && <div className="card">
+        {canViewFinance && <div className="card dashboard-section-card dashboard-balances">
           <div className="card-header">
             <h3 className="card-title">{t("ui.outstandingBalances")}</h3>
           </div>
           {clients.filter(client => client.totalFees > client.paidFees).map(client => {
             const pct = Math.round((client.paidFees / client.totalFees) * 100);
             return (
-              <div key={client.id} style={{ marginBottom: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 500 }}>{client.name}</span>
-                  <span style={{ fontSize: 12, color: "var(--danger)" }}>{fmtCurrency(client.totalFees - client.paidFees)} {t("ui.due")}</span>
+              <div key={client.id} className="dashboard-balance-item">
+                <div className="dashboard-balance-heading">
+                  <span className="dashboard-balance-client">{client.name}</span>
+                  <span className="dashboard-balance-due">{fmtCurrency(client.totalFees - client.paidFees)} {t("ui.due")}</span>
                 </div>
                 <div className="balance-bar"><div className="balance-fill" style={{ width: `${pct}%` }} /></div>
-                <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 3 }}>{pct}% {t("ui.paid")} · {fmtCurrency(client.paidFees)} / {fmtCurrency(client.totalFees)}</div>
+                <div className="dashboard-balance-meta">{pct}% {t("ui.paid")} · {fmtCurrency(client.paidFees)} / {fmtCurrency(client.totalFees)}</div>
               </div>
             );
           })}
           {clients.every(client => client.totalFees <= client.paidFees) && <div className="empty-state"><h3>{t("ui.noOutstandingBalances")}</h3></div>}
+          <Link className="dashboard-card-link" to="/finance">{t("nav.finance")}</Link>
         </div>}
 
-        <div className="card">
+        <div className="card dashboard-section-card dashboard-open-tasks">
           <div className="card-header">
             <h3 className="card-title">{t("ui.openTasks")}</h3>
           </div>
           {tasks.filter(task => task.status !== "done").slice(0, 5).map(task => (
-            <div key={task.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #F0EDE7" }}>
-              <span style={{ fontSize: 10, color: priorityColor(task.priority), textTransform: "uppercase", letterSpacing: "0.1em", minWidth: 50 }}>{task.priority}</span>
-              <span style={{ flex: 1, fontSize: 13.5 }}>{task.title}</span>
-              <span style={{ fontSize: 11, color: "var(--muted)" }}>{fmtDate(task.deadline)}</span>
+            <div key={task.id} className="dashboard-task-row">
+              <span className="dashboard-task-priority" style={{ color: priorityColor(task.priority) }}>{task.priority}</span>
+              <span className="dashboard-task-title">{task.title}</span>
+              <span className="dashboard-task-date">{fmtDate(task.deadline)}</span>
             </div>
           ))}
           {tasks.every(task => task.status === "done") && <div className="empty-state"><h3>{t("ui.noOpenTasks")}</h3></div>}
+          <Link className="dashboard-card-link" to="/tasks">{t("nav.tasks")}</Link>
         </div>
       </div>
+
+      <footer className="dashboard-footer">
+        <span>{t("auth.footerFirm")}</span>
+        <span>{t("auth.footerValues")}</span>
+      </footer>
     </div>
   );
 }

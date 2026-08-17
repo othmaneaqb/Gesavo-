@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { FilterPanel } from "@/components/ui";
 import { useI18n } from "@/i18n";
 import { fmtDate, priorityColor } from "@/shared/utils";
+import "../tasks.css";
 
 export default function TasksPage({ tasks, cases, onMove, onRestore }) {
   const { t } = useI18n();
@@ -18,17 +20,28 @@ export default function TasksPage({ tasks, cases, onMove, onRestore }) {
   );
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex gap-2">
+    <div className="tasks-page">
+      <FilterPanel
+        title={t("ui.filters")}
+        clearLabel={t("ui.clearFilters")}
+        canClear={view !== "active" || caseFilter !== "all"}
+        onClear={() => { setView("active"); setCaseFilter("all"); }}
+      >
+        <div className="filter-field filter-field-view">
+          <label>{t("ui.view")}</label>
+          <div className="filter-segmented">
           <button className={`btn ${view === "active" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("active")}>{t("ui.activeTasks")}</button>
           <button className={`btn ${view === "archive" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("archive")}>{t("ui.archive")}</button>
+          </div>
         </div>
-        <select className="form-control" style={{ maxWidth: 240 }} value={caseFilter} onChange={event => setCaseFilter(event.target.value)}>
-          <option value="all">{t("ui.allCases")}</option>
-          {cases.map(caseItem => <option key={caseItem.id} value={caseItem.id}>{caseItem.caseNumber} - {caseItem.title}</option>)}
-        </select>
-      </div>
+        <div className="filter-field filter-field-wide">
+          <label>{t("ui.case")}</label>
+          <select className="form-control" value={caseFilter} onChange={event => setCaseFilter(event.target.value)}>
+            <option value="all">{t("ui.allCases")}</option>
+            {cases.map(caseItem => <option key={caseItem.id} value={caseItem.id}>{caseItem.caseNumber} - {caseItem.title}</option>)}
+          </select>
+        </div>
+      </FilterPanel>
 
       {view === "active" ? (
         <div className="kanban">
@@ -38,7 +51,7 @@ export default function TasksPage({ tasks, cases, onMove, onRestore }) {
               <div key={col.id} className="kanban-col">
                 <div className="kanban-col-header">
                   <span>{col.label}</span>
-                  <span style={{ background: "var(--border)", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>{colTasks.length}</span>
+                  <span className="tasks-column-count">{colTasks.length}</span>
                 </div>
                 {colTasks.map(task => {
                   const caseItem = cases.find(item => item.id === task.caseId);
@@ -50,10 +63,10 @@ export default function TasksPage({ tasks, cases, onMove, onRestore }) {
                         {task.assignee && <span>· {task.assignee}</span>}
                         <span>· {fmtDate(task.deadline)}</span>
                       </div>
-                      {caseItem && <div style={{ marginTop: 8, fontSize: 11, color: "var(--muted)", background: "var(--cream)", padding: "3px 7px", borderRadius: 4, display: "inline-block" }}>{caseItem.caseNumber}</div>}
-                      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-                        {col.id !== "todo" && <button className="btn btn-ghost btn-sm" style={{ flex: 1, fontSize: 11 }} onClick={() => onMove(task.id, col.id === "in-progress" ? "todo" : "in-progress")}>← {t("ui.back")}</button>}
-                        {col.id !== "done" && <button className="btn btn-primary btn-sm" style={{ flex: 1, fontSize: 11 }} onClick={() => onMove(task.id, col.id === "todo" ? "in-progress" : "done")}>{t("ui.forward")} →</button>}
+                      {caseItem && <div className="tasks-case-reference">{caseItem.caseNumber}</div>}
+                      <div className="tasks-card-actions">
+                        {col.id !== "todo" && <button className="btn btn-ghost btn-sm" onClick={() => onMove(task.id, col.id === "in-progress" ? "todo" : "in-progress")}>← {t("ui.back")}</button>}
+                        {col.id !== "done" && <button className="btn btn-primary btn-sm" onClick={() => onMove(task.id, col.id === "todo" ? "in-progress" : "done")}>{t("ui.forward")} →</button>}
                       </div>
                     </div>
                   );
@@ -64,14 +77,14 @@ export default function TasksPage({ tasks, cases, onMove, onRestore }) {
           })}
         </div>
       ) : (
-        <div className="card">
+        <div className="card tasks-archive-card">
           {filteredTasks.map(task => {
             const caseItem = cases.find(item => item.id === task.caseId);
             return (
-              <div key={task.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
+              <div key={task.id} className="tasks-archive-row">
                 <div>
-                  <div style={{ fontWeight: 500 }}>{task.title}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 3 }}>
+                  <div className="tasks-archive-title">{task.title}</div>
+                  <div className="tasks-archive-meta">
                     {caseItem?.caseNumber || t("ui.noLinkedCase")} · {t("ui.archived")} {fmtDate(task.archivedAt)}
                   </div>
                 </div>

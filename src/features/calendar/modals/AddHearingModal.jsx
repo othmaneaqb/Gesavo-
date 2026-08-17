@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui";
 
-export default function AddHearingModal({ onClose, onSave, cases }) {
-  const [form, setForm] = useState({ title: "", date: "", time: "", court: "", caseId: "" });
+export default function AddHearingModal({ onClose, onSave, cases, team }) {
+  const [form, setForm] = useState({ title: "", date: "", time: "", court: "", caseId: "", attendeeId: "" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
-  const save = async () => { if (!form.title || !form.date) return; const saved = await onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null }); if (saved !== false) onClose(); };
+  const save = async () => { if (!form.title || !form.date) return; const saved = await onSave({ ...form, caseId: form.caseId ? parseInt(form.caseId) : null, attendeeId: form.attendeeId ? parseInt(form.attendeeId) : null }); if (saved !== false) onClose(); };
 
   return (
     <Modal title="Schedule Hearing" onClose={onClose} onSave={save} saveLabel="Schedule">
@@ -16,6 +16,12 @@ export default function AddHearingModal({ onClose, onSave, cases }) {
         </select>
       </div>
       <div className="form-row">
+        <div className="form-group"><label className="form-label">Attendee</label>
+          <select className="form-control" value={form.attendeeId} onChange={set("attendeeId")}>
+            <option value="">Optional</option>
+            {team.map(member => <option key={member.id} value={member.id}>{member.display_name} ({member.role})</option>)}
+          </select>
+        </div>
         <div className="form-group"><label className="form-label">Date *</label><input type="date" className="form-control" value={form.date} onChange={set("date")} /></div>
         <div className="form-group"><label className="form-label">Time</label><input type="time" className="form-control" value={form.time} onChange={set("time")} /></div>
       </div>

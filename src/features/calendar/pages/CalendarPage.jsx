@@ -10,6 +10,23 @@ const weekdayLabels = {
 
 const localeByLanguage = { fr: "fr-FR", en: "en-US", ar: "ar-MA" };
 
+export const getHearingDaysForMonth = (hearings, visibleDate) => {
+  const visibleYear = visibleDate.getFullYear();
+  const visibleMonth = visibleDate.getMonth() + 1;
+  return new Set(hearings.flatMap(hearing => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(hearing.date || "");
+    if (!match) return [];
+    const [, year, month, day] = match.map(Number);
+    return year === visibleYear && month === visibleMonth ? [day] : [];
+  }));
+};
+
+export const isSameCalendarDate = (first, second) => (
+  first.getFullYear() === second.getFullYear()
+  && first.getMonth() === second.getMonth()
+  && first.getDate() === second.getDate()
+);
+
 export default function CalendarPage({ hearings, cases }) {
   const { language, t } = useI18n();
   const today = new Date();
@@ -18,7 +35,7 @@ export default function CalendarPage({ hearings, cases }) {
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
   const monthName = currentDate.toLocaleString(localeByLanguage[language] || "fr-FR", { month: "long", year: "numeric" });
 
-  const hearingDates = hearings.map(h => parseInt(h.date.split("-")[2]));
+  const hearingDays = getHearingDaysForMonth(hearings, currentDate);
 
   const prev = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1));
   const next = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + 1));
@@ -39,8 +56,13 @@ export default function CalendarPage({ hearings, cases }) {
           {(weekdayLabels[language] || weekdayLabels.fr).map(d => <div key={d} className="cal-day-label">{d}</div>)}
           {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
           {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
-            const isToday = day === today.getDate() && currentDate.getMonth() === today.getMonth();
-            const hasEvent = hearingDates.includes(day);
+            const calendarDate = new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              day,
+            );
+            const isToday = isSameCalendarDate(calendarDate, today);
+            const hasEvent = hearingDays.has(day);
             return (
               <div key={day} className={`cal-day ${isToday ? "today" : ""}`}>
                 <span className="day-num">{day}</span>

@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { StatCard, StatusBadge } from "@/components/ui";
+import { FilterPanel, StatCard, StatusBadge } from "@/components/ui";
 import { useI18n } from "@/i18n";
+import { I } from "@/shared/constants";
 import { fmtCurrency, fmtDate } from "@/shared/utils";
+import "@/styles/list-pages.css";
+import "../finance.css";
 
 const tabKeys = ["overview", "transactions", "balances"];
 
@@ -9,6 +12,8 @@ export default function FinancePage({ clients, expenses, cases }) {
   const { t } = useI18n();
   const [tab, setTab] = useState("overview");
   const [printTransaction, setPrintTransaction] = useState(null);
+  const [transactionSearch, setTransactionSearch] = useState("");
+  const [transactionType, setTransactionType] = useState("all");
   const totalInvoiced = clients.reduce((sum, client) => sum + client.totalFees, 0);
   const totalPaid = clients.reduce((sum, client) => sum + client.paidFees, 0);
   const totalOwed = totalInvoiced - totalPaid;
@@ -16,10 +21,15 @@ export default function FinancePage({ clients, expenses, cases }) {
 
   const printClient = printTransaction ? clients.find(client => client.id === printTransaction.clientId) : null;
   const printCase = printTransaction ? cases.find(caseItem => caseItem.id === printTransaction.caseId) : null;
-  const invoiceNumber = printTransaction ? `INV-${String(printTransaction.id).padStart(5, "0")}` : "";
+  const invoiceNumber = printTransaction?.invoiceNumber || "";
   const subtotal = printTransaction?.amount || 0;
   const tax = 0;
   const total = subtotal + tax;
+  const filteredTransactions = expenses.filter(transaction => {
+    const client = clients.find(item => item.id === transaction.clientId);
+    const matchesSearch = `${transaction.description} ${client?.name || ""}`.toLowerCase().includes(transactionSearch.toLowerCase());
+    return matchesSearch && (transactionType === "all" || transaction.type === transactionType);
+  });
 
   useEffect(() => {
     const cleanup = () => {
@@ -42,7 +52,7 @@ export default function FinancePage({ clients, expenses, cases }) {
   }, [printTransaction]);
 
   return (
-    <div className="finance-page">
+    <div className="finance-page list-page">
       <div className="stats-grid mb-6">
         <StatCard label={t("ui.totalInvoiced")} value={fmtCurrency(totalInvoiced)} sub={t("ui.allClients")} isAmount />
         <StatCard label={t("ui.totalReceived")} value={fmtCurrency(totalPaid)} sub={t("ui.paymentsCollected")} isAmount />
@@ -50,7 +60,7 @@ export default function FinancePage({ clients, expenses, cases }) {
         <StatCard label={t("ui.collectionRate")} value={`${collectionRate}%`} sub={t("ui.ofTotalFees")} />
       </div>
 
-      <div className="card">
+      <div className="card list-workspace-card finance-workspace-card">
         <div className="tabs">
           {tabKeys.map(item => (
             <div key={item} className={`tab ${tab === item ? "active" : ""}`} onClick={() => setTab(item)}>
@@ -60,17 +70,17 @@ export default function FinancePage({ clients, expenses, cases }) {
         </div>
 
         {tab === "overview" && (
-          <div>
-            <h4 style={{ fontFamily: "var(--font-heading)", fontSize: 16, marginBottom: 14 }}>{t("ui.outstandingByClient")}</h4>
+          <div className="finance-overview">
+            <h4 className="finance-section-title">{t("ui.outstandingByClient")}</h4>
             {clients.filter(client => client.totalFees > client.paidFees).map(client => {
               const pct = Math.round((client.paidFees / client.totalFees) * 100);
               return (
-                <div key={client.id} style={{ marginBottom: 18 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, gap: 12 }}>
-                    <span style={{ fontWeight: 500 }}>{client.name}</span>
-                    <div style={{ display: "flex", gap: 16, fontSize: 12, flexWrap: "wrap" }}>
-                      <span style={{ color: "var(--success)" }}>{t("ui.paid")}: {fmtCurrency(client.paidFees)}</span>
-                      <span style={{ color: "var(--danger)" }}>{t("ui.due")}: {fmtCurrency(client.totalFees - client.paidFees)}</span>
+                <div key={client.id} className="finance-overview-row">
+                  <div className="finance-overview-heading">
+                    <span className="finance-client-name">{client.name}</span>
+                    <div className="finance-overview-amounts">
+                      <span className="finance-paid">{t("ui.paid")}: {fmtCurrency(client.paidFees)}</span>
+                      <span className="finance-due">{t("ui.due")}: {fmtCurrency(client.totalFees - client.paidFees)}</span>
                     </div>
                   </div>
                   <div className="balance-bar"><div className="balance-fill" style={{ width: `${pct}%` }} /></div>
@@ -82,7 +92,31 @@ export default function FinancePage({ clients, expenses, cases }) {
         )}
 
         {tab === "transactions" && (
-          <div className="table-wrap">
+          <div>
+            <FilterPanel
+              title={t("ui.filters")}
+              clearLabel={t("ui.clearFilters")}
+              canClear={Boolean(transactionSearch) || transactionType !== "all"}
+              onClear={() => { setTransactionSearch(""); setTransactionType("all"); }}
+            >
+              <div className="filter-field filter-field-search">
+                <label>{t("ui.search")}</label>
+                <div className="search-bar">
+                  <span className="search-icon">{I.search}</span>
+                  <input placeholder={t("ui.searchTransactions")} value={transactionSearch} onChange={event => setTransactionSearch(event.target.value)} />
+                </div>
+              </div>
+              <div className="filter-field">
+                <label>{t("ui.type")}</label>
+                <select className="form-control" value={transactionType} onChange={event => setTransactionType(event.target.value)}>
+                  <option value="all">{t("ui.allTypes")}</option>
+                  <option value="invoice">{t("status.invoice")}</option>
+                  <option value="payment">{t("status.payment")}</option>
+                  <option value="expense">{t("status.expense")}</option>
+                </select>
+              </div>
+            </FilterPanel>
+            <div className="table-wrap">
             <table>
               <thead>
                 <tr>
@@ -96,15 +130,15 @@ export default function FinancePage({ clients, expenses, cases }) {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map(transaction => {
+                {filteredTransactions.map(transaction => {
                   const client = clients.find(item => item.id === transaction.clientId);
                   return (
                     <tr key={transaction.id}>
                       <td className="bold">{transaction.description}</td>
                       <td>{client?.name}</td>
                       <td><span className="badge badge-gold">{t(`status.${transaction.type}`, transaction.type)}</span></td>
-                      <td style={{ color: transaction.type === "payment" ? "var(--success)" : "var(--slate)", fontWeight: 600 }}>{fmtCurrency(transaction.amount)}</td>
-                      <td style={{ fontSize: 12, color: "var(--muted)" }}>{fmtDate(transaction.date)}</td>
+                      <td className={transaction.type === "payment" ? "finance-amount finance-paid" : "finance-amount"}>{fmtCurrency(transaction.amount)}</td>
+                      <td className="list-date-cell">{fmtDate(transaction.date)}</td>
                       <td>{transaction.status ? <StatusBadge status={transaction.status} /> : "-"}</td>
                       <td>
                         {transaction.type === "invoice" ? (
@@ -118,7 +152,8 @@ export default function FinancePage({ clients, expenses, cases }) {
                 })}
               </tbody>
             </table>
-            {expenses.length === 0 && <div className="empty-state"><h3>{t("ui.noTransactionsYet")}</h3></div>}
+            {filteredTransactions.length === 0 && <div className="empty-state"><h3>{t("ui.noTransactionsYet")}</h3></div>}
+            </div>
           </div>
         )}
 
@@ -133,8 +168,8 @@ export default function FinancePage({ clients, expenses, cases }) {
                   <tr key={client.id}>
                     <td className="bold">{client.name}</td>
                     <td>{fmtCurrency(client.totalFees)}</td>
-                    <td style={{ color: "var(--success)" }}>{fmtCurrency(client.paidFees)}</td>
-                    <td style={{ color: client.totalFees > client.paidFees ? "var(--danger)" : "var(--success)", fontWeight: 600 }}>
+                    <td className="finance-paid">{fmtCurrency(client.paidFees)}</td>
+                    <td className={client.totalFees > client.paidFees ? "finance-amount finance-due" : "finance-amount finance-paid"}>
                       {client.totalFees > client.paidFees ? fmtCurrency(client.totalFees - client.paidFees) : "-"}
                     </td>
                     <td>{client.totalFees > client.paidFees ? <StatusBadge status="pending" /> : <StatusBadge status="active" />}</td>

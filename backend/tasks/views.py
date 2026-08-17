@@ -1,15 +1,16 @@
-from datetime import timedelta
-
 from django.utils import timezone
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Task
 from .serializers import TaskSerializer, TaskDetailSerializer
+from core.access import ADMIN, ASSISTANT, LAWYER, accessible_tasks, is_admin
+from core.permissions import CabinetObjectPermission
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [CabinetObjectPermission]
+    allowed_roles = {'*': (ADMIN, LAWYER, ASSISTANT)}
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -17,14 +18,18 @@ class TaskViewSet(viewsets.ModelViewSet):
         return TaskSerializer
 
     def get_queryset(self):
-        archive_cutoff = timezone.now() - timedelta(hours=48)
-        Task.objects.filter(
-            status=Task.Status.COMPLETED,
-            is_archived=False,
-            completed_at__isnull=False,
-            completed_at__lte=archive_cutoff,
-        ).update(is_archived=True, archived_at=timezone.now())
-        return super().get_queryset()
+        return accessible_tasks(self.request.user)
+
+    def perform_create(self, serializer):
+        defaults = {'created_by': self.request.user}
+        if self.request.user.role == ASSISTANT and not serializer.validated_data.get('assigned_to'):
+            defaults['assigned_to'] = self.request.user
+        serializer.save(**defaults)
+
+    def can_modify_object(self, user, task):
+        if is_admin(user) or user.role == LAWYER:
+            return True
+        return task.created_by_id == user.pk or task.assigned_to_id == user.pk
 
     def perform_update(self, serializer):
         previous_status = self.get_object().status

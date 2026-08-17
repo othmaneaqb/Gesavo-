@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
-import logo from "../../../assets/logo-ait-el-hadj-cropped.png";
-import { authService } from "../../../services/auth.service";
-import { useI18n } from "../../../i18n";
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import logo from "@/assets/logo-ait-el-hadj-cropped.png";
+import { authService } from "../services/authService";
+import { useI18n } from "@/i18n";
 
 export default function ResetPasswordPage() {
   const { language, languages, setLanguage, t } = useI18n();
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
   const uid = params.get("uid") || "";
   const token = params.get("token") || "";
   const [form, setForm] = useState({ password: "", passwordConfirm: "" });
@@ -27,7 +29,7 @@ export default function ResetPasswordPage() {
       setError(t("reset.required"));
       return;
     }
-    if (form.password.length < 8) {
+    if (form.password.length < 12) {
       setError(t("reset.minLength"));
       return;
     }
@@ -48,15 +50,20 @@ export default function ResetPasswordPage() {
       });
       setMessage(t("reset.success"));
     } catch (err) {
-      setError(err.response?.data?.detail || t("reset.expired"));
+      const errors = err.response?.data;
+      setError(
+        errors?.password?.[0]
+        || errors?.password_confirm?.[0]
+        || errors?.detail
+        || t("reset.expired")
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   const goLogin = () => {
-    window.history.replaceState({}, "", "/");
-    window.location.reload();
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -85,6 +92,7 @@ export default function ResetPasswordPage() {
                 value={form.password}
                 onChange={set("password")}
                 autoComplete="new-password"
+                minLength={12}
                 placeholder={t("reset.passwordPlaceholder")}
               />
             </div>

@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 
     # Local apps
     'users',
@@ -161,12 +162,87 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# PostgreSQL is the permanent default for development and production. SQLite
+# remains available only as an explicit, non-production recovery/export mode.
+DATABASE_ENGINE = os.environ.get('DJANGO_DB_ENGINE', 'postgresql').strip().lower()
+
+if DATABASE_ENGINE in {'postgresql', 'postgres'}:
+    database_name = os.environ.get('DJANGO_DB_NAME', 'gesavo').strip()
+    database_user = os.environ.get('DJANGO_DB_USER', 'gesavo').strip()
+    database_password = os.environ.get('DJANGO_DB_PASSWORD', '')
+    database_host = os.environ.get('DJANGO_DB_HOST', '127.0.0.1').strip()
+    database_port = env_int('DJANGO_DB_PORT', 5432)
+    database_sslmode = os.environ.get(
+        'DJANGO_DB_SSLMODE', 'require' if IS_PRODUCTION else 'prefer'
+    ).strip().lower()
+
+    if not database_password:
+        raise ImproperlyConfigured('DJANGO_DB_PASSWORD is required for PostgreSQL.')
+    if IS_PRODUCTION:
+        if len(database_password) < 16 or 'replace-with' in database_password:
+            raise ImproperlyConfigured(
+                'DJANGO_DB_PASSWORD must be a non-placeholder production secret '
+                'of at least 16 characters.'
+            )
+        required_database_values = {
+            'DJANGO_DB_NAME': database_name,
+            'DJANGO_DB_USER': database_user,
+            'DJANGO_DB_HOST': os.environ.get('DJANGO_DB_HOST', '').strip(),
+        }
+        missing_database_values = [
+            name for name, value in required_database_values.items() if not value
+        ]
+        if missing_database_values:
+            raise ImproperlyConfigured(
+                f"Missing production database settings: {', '.join(missing_database_values)}."
+            )
+
+    allowed_ssl_modes = {'disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'}
+    if database_sslmode not in allowed_ssl_modes:
+        raise ImproperlyConfigured(
+            'DJANGO_DB_SSLMODE must be one of: '
+            f"{', '.join(sorted(allowed_ssl_modes))}."
+        )
+    if IS_PRODUCTION and database_sslmode not in {'require', 'verify-ca', 'verify-full'}:
+        raise ImproperlyConfigured(
+            'DJANGO_DB_SSLMODE must require TLS in production.'
+        )
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': database_name,
+            'USER': database_user,
+            'PASSWORD': database_password,
+            'HOST': database_host,
+            'PORT': database_port,
+            'CONN_MAX_AGE': env_int('DJANGO_DB_CONN_MAX_AGE', 60 if IS_PRODUCTION else 0),
+            'CONN_HEALTH_CHECKS': True,
+            'OPTIONS': {
+                'sslmode': database_sslmode,
+                'connect_timeout': env_int('DJANGO_DB_CONNECT_TIMEOUT', 10),
+            },
+        }
     }
-}
+
+    test_database_name = os.environ.get('DJANGO_TEST_DB_NAME', '').strip()
+    if test_database_name:
+        DATABASES['default']['TEST'] = {'NAME': test_database_name}
+elif DATABASE_ENGINE == 'sqlite':
+    if IS_PRODUCTION:
+        raise ImproperlyConfigured('SQLite is not supported in production.')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': Path(
+                os.environ.get('DJANGO_SQLITE_PATH', str(BASE_DIR / 'db.sqlite3'))
+            ),
+        }
+    }
+else:
+    raise ImproperlyConfigured(
+        'DJANGO_DB_ENGINE must be postgresql (default) or sqlite (recovery only).'
+    )
 
 
 # Password validation
@@ -178,6 +254,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 12,
+        },
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -205,9 +284,33 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Media files (Uploaded files like documents)
+# Legacy media root is retained only so migration 0003 can relocate historical
+# files. New documents use a dedicated private storage with no public URL.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+PRIVATE_DOCUMENT_ROOT = Path(
+    os.environ.get('DJANGO_PRIVATE_DOCUMENT_ROOT', BASE_DIR / 'private_media')
+)
+if IS_PRODUCTION and not os.environ.get('DJANGO_PRIVATE_DOCUMENT_ROOT', '').strip():
+    raise ImproperlyConfigured(
+        'DJANGO_PRIVATE_DOCUMENT_ROOT is required in production and must not be web-served.'
+    )
+if PRIVATE_DOCUMENT_ROOT.resolve() == Path(MEDIA_ROOT).resolve():
+    raise ImproperlyConfigured(
+        'DJANGO_PRIVATE_DOCUMENT_ROOT must be separate from the legacy MEDIA_ROOT.'
+    )
+
+DOCUMENT_MAX_UPLOAD_SIZE_MB = env_int('DOCUMENT_MAX_UPLOAD_SIZE_MB', 10)
+if DOCUMENT_MAX_UPLOAD_SIZE_MB <= 0:
+    raise ImproperlyConfigured('DOCUMENT_MAX_UPLOAD_SIZE_MB must be positive.')
+DOCUMENT_MAX_UPLOAD_SIZE = DOCUMENT_MAX_UPLOAD_SIZE_MB * 1024 * 1024
+
+TASK_ARCHIVE_AFTER_HOURS = env_int('TASK_ARCHIVE_AFTER_HOURS', 48)
+TASK_ARCHIVE_INTERVAL_SECONDS = env_int('TASK_ARCHIVE_INTERVAL_SECONDS', 3600)
+if TASK_ARCHIVE_AFTER_HOURS <= 0 or TASK_ARCHIVE_INTERVAL_SECONDS <= 0:
+    raise ImproperlyConfigured(
+        'TASK_ARCHIVE_AFTER_HOURS and TASK_ARCHIVE_INTERVAL_SECONDS must be positive.'
+    )
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -232,9 +335,21 @@ REST_FRAMEWORK = {
 }
 
 # SimpleJWT Settings
+JWT_ACCESS_TOKEN_MINUTES = env_int('JWT_ACCESS_TOKEN_MINUTES', 15)
+JWT_REFRESH_TOKEN_DAYS = env_int('JWT_REFRESH_TOKEN_DAYS', 1)
+if JWT_ACCESS_TOKEN_MINUTES <= 0 or JWT_REFRESH_TOKEN_DAYS <= 0:
+    raise ImproperlyConfigured(
+        'JWT_ACCESS_TOKEN_MINUTES and JWT_REFRESH_TOKEN_DAYS must be positive integers.'
+    )
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=JWT_ACCESS_TOKEN_MINUTES),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=JWT_REFRESH_TOKEN_DAYS),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    # Embed a fingerprint of the password hash and reject tokens issued before
+    # a password change/reset.
+    'CHECK_REVOKE_TOKEN': True,
 }
 
 # Password reset email settings.

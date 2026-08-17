@@ -4,7 +4,7 @@ import { DocRow } from "@/features/documents";
 import { I } from "@/shared/constants";
 import { fmtCurrency, fmtDate } from "@/shared/utils";
 
-export default function ClientDetail({ client, cases, docs, activities, expenses, canViewFinance, onBack, onEdit, onDelete }) {
+export default function ClientDetail({ client, cases, docs, activities, expenses, canViewFinance, canManageLegal, onBack, onEdit, onDelete }) {
   const [tab, setTab] = useState("overview");
   const clientCases = cases.filter(c => c.clientId === client.id);
   const clientDocs = docs.filter(d => d.clientId === client.id);
@@ -15,10 +15,10 @@ export default function ClientDetail({ client, cases, docs, activities, expenses
     <div>
       <div className="flex justify-between items-center mb-4">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>{I.back} Back to Clients</button>
-        <div className="flex gap-2">
+        {canManageLegal && <div className="flex gap-2">
           <button className="btn btn-ghost btn-sm" onClick={onEdit}>Edit Client</button>
           <button className="btn btn-danger btn-sm" onClick={() => onDelete(client.id)}>Delete Client</button>
-        </div>
+        </div>}
       </div>
       <div className="detail-panel">
         <div className="detail-header">
