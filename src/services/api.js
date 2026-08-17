@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-// Create an Axios instance pointing to the Django backend
+// Production defaults to a same-origin API. Local and split-domain deployments
+// can override it through the Create React App environment contract.
+export const API_BASE_URL = (process.env.REACT_APP_API_URL || '/api/').replace(/\/?$/, '/');
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: API_BASE_URL,
 });
 
 // Interceptor to automatically add the JWT token to headers if it exists

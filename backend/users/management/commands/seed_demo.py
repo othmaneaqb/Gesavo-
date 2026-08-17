@@ -1,6 +1,7 @@
+import os
 from datetime import timedelta
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from clients.models import Client
@@ -16,6 +17,14 @@ class Command(BaseCommand):
     help = "Seed demo records for local development."
 
     def handle(self, *args, **options):
+        demo_password = os.environ.get("GESAVO_DEMO_PASSWORD")
+        assistant_password = os.environ.get("GESAVO_ASSISTANT_PASSWORD")
+        if not demo_password or not assistant_password:
+            raise CommandError(
+                "GESAVO_DEMO_PASSWORD and GESAVO_ASSISTANT_PASSWORD are required. "
+                "Set unique local values before running seed_demo."
+            )
+
         user, _ = CustomUser.objects.get_or_create(
             username="demo",
             defaults={
@@ -25,7 +34,7 @@ class Command(BaseCommand):
                 "role": CustomUser.Role.LAWYER,
             },
         )
-        user.set_password("Demo12345!")
+        user.set_password(demo_password)
         user.save()
 
         assistant, _ = CustomUser.objects.get_or_create(
@@ -37,7 +46,7 @@ class Command(BaseCommand):
                 "role": CustomUser.Role.ASSISTANT,
             },
         )
-        assistant.set_password("Assistant12345!")
+        assistant.set_password(assistant_password)
         assistant.save()
 
         ibrahim, _ = Client.objects.get_or_create(

@@ -10,22 +10,95 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+import sys
+from datetime import timedelta
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR.parent / '.env')
+IS_TESTING = 'test' in sys.argv
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&3tlqyljxqjnkx64=gkq@@t6z(3f^d$kfmj#+w02f++om$#$y#'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def env_list(name):
+    return [item.strip() for item in os.environ.get(name, '').split(',') if item.strip()]
 
-ALLOWED_HOSTS = []
+
+def env_int(name, default):
+    try:
+        return int(os.environ.get(name, default))
+    except (TypeError, ValueError) as exc:
+        raise ImproperlyConfigured(f'{name} must be an integer.') from exc
+
+
+ENVIRONMENT = os.environ.get('DJANGO_ENVIRONMENT', 'development').strip().lower()
+if ENVIRONMENT not in {'development', 'production'}:
+    raise ImproperlyConfigured(
+        'DJANGO_ENVIRONMENT must be either development or production.'
+    )
+IS_PRODUCTION = ENVIRONMENT == 'production'
+
+# Tests receive a deterministic, non-production key so the suite remains
+# self-contained. Every other environment must provide its own secret.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY and IS_TESTING:
+    SECRET_KEY = 'characterization-tests-only-not-for-runtime'
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        'DJANGO_SECRET_KEY is required. Copy .env.example to .env and generate a unique secret.'
+    )
+if IS_PRODUCTION and (
+    len(SECRET_KEY) < 50
+    or SECRET_KEY.startswith('django-insecure-')
+    or 'replace-with' in SECRET_KEY
+):
+    raise ImproperlyConfigured(
+        'DJANGO_SECRET_KEY must be a unique production secret of at least 50 characters.'
+    )
+
+DEBUG = env_bool('DJANGO_DEBUG', not IS_PRODUCTION)
+if IS_PRODUCTION and DEBUG:
+    raise ImproperlyConfigured('DJANGO_DEBUG cannot be enabled in production.')
+
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS')
+if IS_PRODUCTION and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('DJANGO_ALLOWED_HOSTS is required in production.')
+
+# Production defaults pass Django's deployment checklist. HSTS preload is
+# deliberately scoped to the explicit production profile, never development.
+SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', IS_PRODUCTION and not IS_TESTING)
+SESSION_COOKIE_SECURE = env_bool('DJANGO_SESSION_COOKIE_SECURE', IS_PRODUCTION and not IS_TESTING)
+CSRF_COOKIE_SECURE = env_bool('DJANGO_CSRF_COOKIE_SECURE', IS_PRODUCTION and not IS_TESTING)
+SECURE_HSTS_SECONDS = env_int(
+    'DJANGO_SECURE_HSTS_SECONDS', 31536000 if IS_PRODUCTION and not IS_TESTING else 0
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    'DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', IS_PRODUCTION and not IS_TESTING
+)
+SECURE_HSTS_PRELOAD = env_bool(
+    'DJANGO_SECURE_HSTS_PRELOAD', IS_PRODUCTION and not IS_TESTING
+)
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'same-origin'
+X_FRAME_OPTIONS = 'DENY'
+
+if env_bool('DJANGO_TRUST_X_FORWARDED_PROTO', False):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -133,7 +206,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Media files (Uploaded files like documents)
-import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -144,7 +216,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True # For development only, configure properly in production
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = env_list('DJANGO_CORS_ALLOWED_ORIGINS')
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
+CORS_ALLOW_CREDENTIALS = False
 
 # Django REST Framework Settings
 REST_FRAMEWORK = {
@@ -157,7 +232,6 @@ REST_FRAMEWORK = {
 }
 
 # SimpleJWT Settings
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -166,11 +240,19 @@ SIMPLE_JWT = {
 # Password reset email settings.
 # Development uses console output so reset links are visible in the backend terminal.
 # For production, replace these values with SMTP configuration.
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', '' if IS_PRODUCTION else 'http://localhost:3000')
+if IS_PRODUCTION and not FRONTEND_URL:
+    raise ImproperlyConfigured('FRONTEND_URL is required in production.')
+
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'
+    if IS_PRODUCTION
+    else 'django.core.mail.backends.console.EmailBackend',
+)
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Cabinet Aït El Hadj <no-reply@aitelhadj.local>')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_PORT = env_int('EMAIL_PORT', 587)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)

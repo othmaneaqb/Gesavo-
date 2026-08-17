@@ -547,13 +547,15 @@ npm.cmd run build
 
 ## 11. Comptes de démonstration
 
-Comptes utilisés pour les tests :
+Comptes utilisés pour les tests. Les mots de passe ne sont pas stockés dans le
+dépôt et doivent être fournis par l'environnement avant d'exécuter
+`python manage.py seed_demo` :
 
 ### Avocat
 
 ```text
 Username : demo
-Password : Demo12345!
+Password : variable GESAVO_DEMO_PASSWORD
 Role     : LAWYER
 ```
 
@@ -561,7 +563,7 @@ Role     : LAWYER
 
 ```text
 Username : assistant
-Password : Assistant12345!
+Password : variable GESAVO_ASSISTANT_PASSWORD
 Role     : ASSISTANT
 ```
 

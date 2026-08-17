@@ -1,4 +1,65 @@
-# Getting Started with Create React App
+# GesAvo
+
+## Local setup
+
+The repository does not contain runtime secrets, the SQLite database, uploaded
+media, Python environments, or logs. Create those locally after cloning.
+
+### Environment
+
+Copy `.env.example` to `.env`, then replace every `replace-with-...` value.
+Generate a unique Django key with:
+
+```powershell
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Django intentionally refuses to start outside the test suite when
+`DJANGO_SECRET_KEY` is missing.
+
+Use `.env.example` for local development and `.env.production.example` as the
+deployment checklist. Production requires `DJANGO_ENVIRONMENT=production`, a
+unique secret, explicit hosts, explicit CORS/CSRF origins, and `FRONTEND_URL`.
+It enables HTTPS redirect, secure cookies, and one-year HSTS with subdomains
+and preload by default.
+
+Only enable `DJANGO_TRUST_X_FORWARDED_PROTO` when the application is behind a
+trusted proxy that removes client-supplied `X-Forwarded-Proto` headers.
+
+### Backend
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r backend\requirements.txt
+cd backend
+python manage.py migrate
+python manage.py runserver
+```
+
+The optional `seed_demo` command also requires unique
+`GESAVO_DEMO_PASSWORD` and `GESAVO_ASSISTANT_PASSWORD` values in `.env`.
+
+### Frontend
+
+`REACT_APP_API_URL` controls the Django API origin. If it is omitted, the
+frontend uses the same-origin `/api/` path. Create React App embeds this value
+at build time, so production must set it before `npm run build` when the API is
+hosted on another origin.
+
+```powershell
+npm ci
+npm start
+```
+
+### Characterization tests
+
+```powershell
+cd backend
+python manage.py test
+```
+
+## Create React App reference
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
