@@ -1,8 +1,12 @@
-export default function FilterPanel({ title, clearLabel, children, onClear, canClear = false }) {
+import { useId } from "react";
+
+export default function FilterPanel({ title, clearLabel, children, onClear, canClear = false, className = "" }) {
+  const titleId = useId();
+
   return (
-    <section className="filter-panel" aria-label={title}>
+    <section className={`filter-panel ${className}`.trim()} aria-labelledby={title ? titleId : undefined}>
       <div className="filter-panel-header">
-        <h3>{title}</h3>
+        {title && <h3 id={titleId}>{title}</h3>}
         {onClear && (
           <button
             type="button"

@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import { fmtDate } from "@/shared/utils";
 import { I } from "@/shared/constants";
 import { useI18n } from "@/i18n";
+import { Button } from "@/components/ui";
 import logo from "@/assets/image.png";
 
 export default function DashboardLayout({
   activeRoute,
   isDetail,
   detailTitle,
+  subtitle,
   onNavigate,
   setModal,
   navItems,
@@ -61,17 +63,17 @@ export default function DashboardLayout({
         <nav className="sidebar-nav">
           <div className="nav-section-label">{t("common.navigation")}</div>
           {navItems.filter(item => item.section !== "system").map(n => (
-            <div key={n.key} className={`nav-item ${activeRoute?.key === n.key ? "active" : ""}`} onClick={() => onNavigate(n.path)}>
+            <button type="button" key={n.key} className={`nav-item ${activeRoute?.key === n.key ? "active" : ""}`} onClick={() => onNavigate(n.path)}>
               <span className="icon">{n.icon}</span>
               <span>{t(`nav.${n.key}`, n.label)}</span>
-            </div>
+            </button>
           ))}
           <div className="nav-section-label" style={{ marginTop: 8 }}>{t("common.system")}</div>
           {navItems.filter(item => item.section === "system").map(n => (
-            <div key={n.key} className={`nav-item ${activeRoute?.key === n.key ? "active" : ""}`} onClick={() => onNavigate(n.path)}>
+            <button type="button" key={n.key} className={`nav-item ${activeRoute?.key === n.key ? "active" : ""}`} onClick={() => onNavigate(n.path)}>
               <span className="icon">{n.icon}</span>
               <span>{t(`nav.${n.key}`, n.label)}</span>
-            </div>
+            </button>
           ))}
         </nav>
         <div className="sidebar-footer">
@@ -86,18 +88,21 @@ export default function DashboardLayout({
               <div className="user-role">{user?.role}</div>
             </div>
           </div>
-          <button className="btn btn-ghost btn-sm w-full" style={{ marginTop: 12, justifyContent: "center" }} onClick={onLogout}>
+          <Button variant="ghost" size="sm" className="sidebar-logout w-full" onClick={onLogout}>
             {t("common.logout")}
-          </button>
+          </Button>
         </div>
       </aside>
 
       {/* MAIN */}
       <main className="main">
-        <header className={`topbar ${activeRoute?.key === "dashboard" ? "topbar-dashboard" : ""}`}>
-          <h2 className="page-title">
-            {detailTitle || t(`nav.${activeRoute?.key}`, activeRoute?.label)}
-          </h2>
+        <header className="topbar">
+          <div className="page-heading">
+            <h2 className="page-title">
+              {detailTitle || t(`nav.${activeRoute?.key}`, activeRoute?.label)}
+            </h2>
+            {subtitle && <p className="page-subtitle">{subtitle}</p>}
+          </div>
           <div className="topbar-actions">
             <select className="language-select" value={language} onChange={event => setLanguage(event.target.value)} aria-label="Language">
               {languages.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}
@@ -164,9 +169,9 @@ export default function DashboardLayout({
               )}
             </div>
             {showAction && (
-              <button className="btn btn-primary" onClick={() => setModal({ type: activeAction.modalType })}>
+              <Button variant="primary" onClick={() => setModal({ type: activeAction.modalType })}>
                 {activeAction.icon} {getActionLabel(activeAction)}
-              </button>
+              </Button>
             )}
           </div>
         </header>
